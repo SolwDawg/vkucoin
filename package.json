@@ -1,21 +1,12 @@
 {
-  "name": "vkucoin",
-  "version": "1.0.0",
-  "description": "vkucoin",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "prepare": "husky"
-  },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "husky": "^9.1.7"
-  },
   "devDependencies": {
     "@commitlint/cli": "^19.7.1",
     "@commitlint/config-conventional": "^19.7.1",
+    "husky": "^9.1.7",
     "lint-staged": "^15.4.3",
     "prettier": "^3.5.3"
+  },
+  "scripts": {
+    "prepare": "husky"
   }
 }
