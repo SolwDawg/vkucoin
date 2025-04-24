@@ -15,7 +15,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Configure database connection
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), 
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
         sqlServerOptionsAction: sqlOptions =>
         {
             sqlOptions.EnableRetryOnFailure(
@@ -24,6 +24,17 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 errorNumbersToAdd: null);
         })
     );
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", builder =>
+    {
+        builder.AllowAnyOrigin()
+               .AllowAnyMethod()
+               .AllowAnyHeader();
+    });
+
+});
 
 // Configure Identity
 builder.Services.AddIdentity<User, IdentityRole>(options =>
@@ -99,9 +110,10 @@ builder.Services.AddScoped<ExcelService>();
 
 // Add health checks
 builder.Services.AddHealthChecks()
-    .AddCheck("Database", () => 
+    .AddCheck("Database", () =>
     {
-        try {
+        try
+        {
             using var scope = builder.Services.BuildServiceProvider().CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             dbContext.Database.CanConnect();
@@ -122,9 +134,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors("AllowAll");
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+
+
 
 app.MapControllers();
 app.MapHealthChecks("/health");
@@ -134,17 +149,17 @@ using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var logger = services.GetRequiredService<ILogger<Program>>();
-    
+
     try
     {
         // Apply migrations and create database if it doesn't exist
         var context = services.GetRequiredService<ApplicationDbContext>();
         logger.LogInformation("Attempting to migrate database...");
-        
+
         // Retry pattern for database connection
         var maxRetryAttempts = 10;
         var retryDelay = TimeSpan.FromSeconds(5);
-        
+
         for (int retryAttempt = 0; retryAttempt < maxRetryAttempts; retryAttempt++)
         {
             try
@@ -155,9 +170,9 @@ using (var scope = app.Services.CreateScope())
             }
             catch (Exception ex)
             {
-                logger.LogWarning(ex, "Database migration failed (Attempt {Attempt}/{MaxAttempts})", 
+                logger.LogWarning(ex, "Database migration failed (Attempt {Attempt}/{MaxAttempts})",
                     retryAttempt + 1, maxRetryAttempts);
-                
+
                 if (retryAttempt < maxRetryAttempts - 1)
                 {
                     logger.LogInformation("Waiting {Delay} seconds before retry...", retryDelay.TotalSeconds);
@@ -170,21 +185,21 @@ using (var scope = app.Services.CreateScope())
                 }
             }
         }
-        
+
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
         var userManager = services.GetRequiredService<UserManager<User>>();
-        
+
         // Create roles if they don't exist
         if (!await roleManager.RoleExistsAsync("Admin"))
             await roleManager.CreateAsync(new IdentityRole("Admin"));
-        
+
         if (!await roleManager.RoleExistsAsync("Student"))
             await roleManager.CreateAsync(new IdentityRole("Student"));
-        
+
         // Create admin user if it doesn't exist
         var adminEmail = "admin@vku.udn.vn";
         var adminUser = await userManager.FindByEmailAsync(adminEmail);
-        
+
         if (adminUser == null)
         {
             adminUser = new User
@@ -196,7 +211,7 @@ using (var scope = app.Services.CreateScope())
                 EmailConfirmed = true,
                 IsStudent = false
             };
-            
+
             var result = await userManager.CreateAsync(adminUser, "Admin@123456!");
             if (result.Succeeded)
             {
