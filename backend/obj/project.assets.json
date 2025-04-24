@@ -6082,7 +6082,7 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\tuank\\.nuget\\packages\\": {}
+    "C:\\Users\\mikpr\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
@@ -6090,11 +6090,11 @@
       "projectUniqueName": "D:\\Workspace\\vkucoin\\backend\\backend.csproj",
       "projectName": "backend",
       "projectPath": "D:\\Workspace\\vkucoin\\backend\\backend.csproj",
-      "packagesPath": "C:\\Users\\tuank\\.nuget\\packages\\",
+      "packagesPath": "C:\\Users\\mikpr\\.nuget\\packages\\",
       "outputPath": "D:\\Workspace\\vkucoin\\backend\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\tuank\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\mikpr\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net9.0"
