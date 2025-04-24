@@ -21,7 +21,11 @@ export async function httpClient<T = any>(
 
   // Default headers
   const headers = new Headers(customOptions.headers);
-  headers.set("Content-Type", "application/json");
+
+  // Don't set Content-Type if it's FormData (browser will set it with boundary)
+  if (!customOptions.body || !(customOptions.body instanceof FormData)) {
+    headers.set("Content-Type", "application/json");
+  }
 
   // Add auth header if required and available
   if (requireAuth) {
@@ -89,6 +93,17 @@ export const http = {
       ...options,
       method: "POST",
       body: data ? JSON.stringify(data) : undefined,
+    }),
+
+  postFormData: <T = any>(
+    endpoint: string,
+    formData: FormData,
+    options?: RequestOptions
+  ) =>
+    httpClient<T>(endpoint, {
+      ...options,
+      method: "POST",
+      body: formData,
     }),
 
   put: <T = any>(endpoint: string, data?: any, options?: RequestOptions) =>

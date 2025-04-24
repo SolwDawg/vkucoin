@@ -15,6 +15,8 @@ export function middleware(request: NextRequest) {
   const publicRoutes = ["/login", "/", "/about"];
   // API routes that bypass this middleware
   const bypassRoutes = ["/api"];
+  // Admin routes that require admin role
+  const adminRoutes = ["/dashboard/admin"];
 
   const path = request.nextUrl.pathname;
 
@@ -26,6 +28,8 @@ export function middleware(request: NextRequest) {
   const isAuthPage = path.startsWith("/login");
   // Check if the path should bypass this middleware
   const shouldBypass = bypassRoutes.some((route) => path.startsWith(route));
+  // Check if the path is an admin route
+  const isAdminRoute = adminRoutes.some((route) => path.startsWith(route));
 
   // Bypass API routes and static files
   if (shouldBypass) {
@@ -44,6 +48,9 @@ export function middleware(request: NextRequest) {
   if (token && isAuthPage) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
+
+  // For admin routes, we'll check authentication in the components
+  // using the requireAuth flag in useAuth hook and role-based checks
 
   return NextResponse.next();
 }
