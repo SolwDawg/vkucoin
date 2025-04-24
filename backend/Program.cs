@@ -34,14 +34,6 @@ builder.Services.AddCors(options =>
                .AllowAnyHeader();
     });
 
-    // Hoặc cấu hình chi tiết hơn
-    // options.AddPolicy("AllowSpecific", builder =>
-    // {
-    //     builder.WithOrigins("http://localhost:3000", "https://yourfrontend.com")
-    //            .WithMethods("GET", "POST", "PUT", "DELETE")
-    //            .WithHeaders("Content-Type", "Authorization")
-    //            .AllowCredentials();
-    // });
 });
 
 // Configure Identity
