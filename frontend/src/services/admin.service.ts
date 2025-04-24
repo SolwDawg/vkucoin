@@ -1,7 +1,13 @@
 "use client";
 
 import { http } from "@/lib/http-client";
-import { ImportUsersResponse, Activity } from "@/types/admin";
+import {
+  ImportUsersResponse,
+  Activity,
+  Student,
+  UpdateStudentDto,
+  UpdateStudentResponse,
+} from "@/types/admin";
 
 export const adminService = {
   async importUsers(file: File): Promise<ImportUsersResponse> {
@@ -48,5 +54,64 @@ export const adminService = {
 
   async deleteActivity(id: string): Promise<any> {
     return http.delete(`/admin/Activities/${id}`);
+  },
+
+  // Get students by class
+  async getStudentsByClass(className: string): Promise<{
+    className: string;
+    totalStudents: number;
+    students: Student[];
+  }> {
+    return http.get(`/admin/students-by-class/${className}`);
+  },
+
+  // Get a single student by studentCode
+  async getStudentByCode(studentCode: string): Promise<Student> {
+    // Since there's no direct endpoint for getting a student by code,
+    // we'll try to find the student's class and then filter from the list
+    try {
+      // We'll use the update-student endpoint directly to check if student exists
+      // and get data from the response
+      const response = await http.put<UpdateStudentResponse>(
+        `/admin/update-student/${studentCode}`,
+        {}
+      );
+
+      // If we get here, we didn't throw an error, so student exists
+      // Create a Student object from the response data
+      return {
+        studentCode,
+        fullName: response.updated.fullName,
+        email: response.updated.email,
+        dateOfBirth: response.updated.dateOfBirth,
+        class: response.updated.class,
+        walletAddress: response.updated.address || "",
+        walletBalance: 0, // We don't have this info from the update response
+      };
+    } catch (error: any) {
+      // If the error is 404, student doesn't exist
+      if (error.status === 404) {
+        throw new Error("Student not found");
+      }
+      // Re-throw any other errors
+      throw error;
+    }
+  },
+
+  // Update a student
+  async updateStudent(
+    studentCode: string,
+    data: UpdateStudentDto
+  ): Promise<UpdateStudentResponse> {
+    return http.put(`/admin/update-student/${studentCode}`, data);
+  },
+
+  // Delete a student
+  async deleteStudent(studentCode: string): Promise<{
+    message: string;
+    deletedEmail: string;
+    deletedWallet?: string;
+  }> {
+    return http.delete(`/admin/delete-student/${studentCode}`);
   },
 };
