@@ -2,7 +2,14 @@
 
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Users, FileSpreadsheet, LogOut, Home } from "lucide-react";
+import {
+  Users,
+  FileSpreadsheet,
+  LogOut,
+  Home,
+  Calendar,
+  ListTodo,
+} from "lucide-react";
 import { useAuthStore } from "@/store/auth.store";
 
 interface AdminLayoutProps {
@@ -33,6 +40,16 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
       href: "/dashboard/admin/manage-users",
       label: "Manage Users",
       icon: <Users className="w-5 h-5 mr-2" />,
+    },
+    {
+      href: "/dashboard/admin/activities",
+      label: "Manage Activities",
+      icon: <ListTodo className="w-5 h-5 mr-2" />,
+    },
+    {
+      href: "/dashboard/admin/activities/add",
+      label: "Add Activity",
+      icon: <Calendar className="w-5 h-5 mr-2" />,
     },
   ];
 

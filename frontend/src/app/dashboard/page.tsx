@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useAdminAuth } from "@/lib/admin.utils";
 import { AdminLayout } from "@/components/layouts/AdminLayout";
 import Link from "next/link";
-import { FileSpreadsheet, Users } from "lucide-react";
+import { FileSpreadsheet, Users, Calendar, ListTodo } from "lucide-react";
 
 export default function DashboardPage() {
   // Use auth hook to ensure only authenticated users can access this page
@@ -26,6 +26,20 @@ export default function DashboardPage() {
       icon: <Users className="h-8 w-8 text-purple-500" />,
       href: "/dashboard/admin/manage-users",
       color: "bg-purple-50 dark:bg-purple-900/20",
+    },
+    {
+      title: "Manage Activities",
+      description: "View and manage all student activities",
+      icon: <ListTodo className="h-8 w-8 text-indigo-500" />,
+      href: "/dashboard/admin/activities",
+      color: "bg-indigo-50 dark:bg-indigo-900/20",
+    },
+    {
+      title: "Add Activity",
+      description: "Create new activities for students to participate in",
+      icon: <Calendar className="h-8 w-8 text-green-500" />,
+      href: "/dashboard/admin/activities/add",
+      color: "bg-green-50 dark:bg-green-900/20",
     },
   ];
 
