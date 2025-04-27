@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using backend.Data;
+using backend.DTOs;
 using backend.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -38,6 +39,8 @@ namespace backend.Controllers
 
             return Ok(activities);
         }
+
+    
 
         // POST: api/student/activities/5/register
         [HttpPost("{activityId}/register")]
@@ -91,6 +94,8 @@ namespace backend.Controllers
                 StudentId = student.Id, // Lưu ID của sinh viên
                 ActivityId = activityId
             };
+
+            
 
             await _context.ActivityRegistrations.AddAsync(registration);
             await _context.SaveChangesAsync();
