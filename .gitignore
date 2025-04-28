@@ -11,4 +11,3 @@ node_modules
 /backend/*.dll
 /backend/*.pdb
 /backend/*.cache
-
