@@ -34,7 +34,6 @@ namespace backend.Controllers
         public async Task<IActionResult> GetAvailableActivities()
         {
             var activities = await _context.Activities
-                .Where(a => a.IsActive && a.StartDate > DateTime.UtcNow)
                 .ToListAsync();
 
             return Ok(activities);
