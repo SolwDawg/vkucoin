@@ -3,4 +3,10 @@ node_modules
 .env.local
 .env.development
 .env.production
+bin/
+obj/
+*.exe
+*.dll
+*.pdb
+*.cache
 
