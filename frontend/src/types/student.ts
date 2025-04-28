@@ -1,9 +1,18 @@
 export interface StudentProfile {
+  id: string;
   studentCode: string;
   fullName: string;
   email: string;
   dateOfBirth: string;
   class?: string;
-  walletAddress: string;
-  walletBalance: number;
+  role: string;
+  isStudent: boolean;
+  userName: string;
+  wallet?: {
+    id: number;
+    address: string;
+    privateKey: string;
+    balance: number;
+    userId: string;
+  };
 }
