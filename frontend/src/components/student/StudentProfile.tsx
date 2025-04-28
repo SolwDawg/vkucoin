@@ -55,12 +55,19 @@ export default function StudentProfile() {
           <ProfileItem label="Email" value={profile.email} />
           <ProfileItem label="Date of Birth" value={formattedBirthDate} />
           {profile.class && <ProfileItem label="Class" value={profile.class} />}
-          <ProfileItem label="Wallet Address" value={profile.walletAddress} />
-          <ProfileItem
-            label="Wallet Balance"
-            value={`${profile.walletBalance?.toLocaleString() || "0"} VKU`}
-            highlight={true}
-          />
+          {profile.wallet && (
+            <>
+              <ProfileItem
+                label="Wallet Address"
+                value={profile.wallet.address}
+              />
+              <ProfileItem
+                label="Wallet Balance"
+                value={`${profile.wallet.balance.toLocaleString() || "0"} VKU`}
+                highlight={true}
+              />
+            </>
+          )}
         </div>
       </div>
     </div>
