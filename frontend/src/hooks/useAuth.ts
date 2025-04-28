@@ -55,9 +55,19 @@ export function useAuth({
     try {
       await login(email, password);
 
-      // Get the callback URL from query parameters
-      const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
-      router.push(callbackUrl);
+      // Get the user role from the store after login
+      const { user } = useAuthStore.getState();
+
+      // Redirect based on user role
+      if (user && user.role === "Admin") {
+        router.push("/dashboard");
+      } else if (user && user.role === "Student") {
+        router.push("/student");
+      } else {
+        // Fallback to the original behavior
+        const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
+        router.push(callbackUrl);
+      }
 
       return { success: true };
     } catch (error) {
