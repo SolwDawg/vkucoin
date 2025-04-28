@@ -52,6 +52,7 @@ namespace backend.Services
                 new Claim(ClaimTypes.Email, user.Email ?? string.Empty),
                 new Claim(ClaimTypes.Role, user.Role),
                 new Claim("UserId", user.Id),
+                new Claim("StudentCode", user.StudentCode ?? string.Empty),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };
             

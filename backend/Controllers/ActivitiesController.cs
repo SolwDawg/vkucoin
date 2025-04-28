@@ -226,6 +226,8 @@ namespace backend.Controllers
                 activityToConfirm.Name);
 
             if (!result.Success) return BadRequest("Lỗi khi cộng coin");
+            
+            student.Wallet.Balance += activityToConfirm.RewardCoin;
 
             await _context.SaveChangesAsync();
 
