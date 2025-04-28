@@ -11,6 +11,8 @@ export function middleware(request: NextRequest) {
     "/wallet",
     "/transactions",
   ];
+  // Student routes that require student role
+  const studentRoutes = ["/student"];
   // Public routes that don't require authentication
   const publicRoutes = ["/login", "/", "/about"];
   // API routes that bypass this middleware
@@ -24,6 +26,8 @@ export function middleware(request: NextRequest) {
   const isProtectedRoute = protectedRoutes.some((route) =>
     path.startsWith(route)
   );
+  // Check if the path is a student route
+  const isStudentRoute = studentRoutes.some((route) => path.startsWith(route));
   // Check if the path is a login route
   const isAuthPage = path.startsWith("/login");
   // Check if the path should bypass this middleware
@@ -37,7 +41,7 @@ export function middleware(request: NextRequest) {
   }
 
   // Redirect to login if no token and trying to access protected route
-  if (!token && isProtectedRoute) {
+  if (!token && (isProtectedRoute || isStudentRoute)) {
     const redirectUrl = new URL("/login", request.url);
     // Add the original URL as a parameter to redirect back after login
     redirectUrl.searchParams.set("callbackUrl", path);
@@ -46,6 +50,7 @@ export function middleware(request: NextRequest) {
 
   // Redirect to dashboard if token exists and trying to access login page
   if (token && isAuthPage) {
+    // We'll let the client-side code handle role-based redirection after login
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 

@@ -58,7 +58,7 @@ export default function StudentProfile() {
           <ProfileItem label="Wallet Address" value={profile.walletAddress} />
           <ProfileItem
             label="Wallet Balance"
-            value={`${profile.walletBalance.toLocaleString()} VKU`}
+            value={`${profile.walletBalance?.toLocaleString() || "0"} VKU`}
             highlight={true}
           />
         </div>
