@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { User, LogOut, Home, Wallet, Award } from "lucide-react";
+import { User, LogOut, Home, Wallet, Award, Calendar } from "lucide-react";
 import { useAuthStore } from "@/store/auth.store";
 
 interface DashboardLayoutProps {
@@ -28,6 +28,11 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       href: "/student/profile",
       label: "Profile",
       icon: <User className="w-5 h-5 mr-2" />,
+    },
+    {
+      href: "/student/activities",
+      label: "Activities",
+      icon: <Calendar className="w-5 h-5 mr-2" />,
     },
     {
       href: "/wallet",

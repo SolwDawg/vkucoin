@@ -13,6 +13,7 @@ import {
   Eye,
   Trash,
   X,
+  ClipboardList,
 } from "lucide-react";
 import Link from "next/link";
 import { DeleteActivityDialog } from "./DeleteActivityDialog";
@@ -245,6 +246,13 @@ export const ActivityList = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
                     <div className="flex space-x-3">
+                      <Link
+                        href={`/dashboard/admin/activities/${activity.id}/registrations`}
+                        className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 flex items-center"
+                      >
+                        <ClipboardList className="h-4 w-4 mr-1" />
+                        Registrations
+                      </Link>
                       <Link
                         href={`/dashboard/admin/activities/edit/${activity.id}`}
                         className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 flex items-center"
