@@ -74,6 +74,9 @@ namespace backend.Models
         public bool IsApproved { get; set; } = false;
         public DateTime? ApprovedAt { get; set; }
 
+        public bool IsParticipationConfirmed { get; set; } = false;
+        public DateTime? ParticipationConfirmedAt { get; set; }
+
         public string? EvidenceImageUrl { get; set; } // URL ảnh minh chứng tham gia
 
     }
