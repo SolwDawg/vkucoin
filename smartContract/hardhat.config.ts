@@ -1,16 +1,15 @@
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
-import dotenv from "dotenv";
+import "@nomicfoundation/hardhat-verify";
+import "dotenv/config";
 
-// Load environment variables
-dotenv.config();
-
-// Get the private key from the environment variable
-const PRIVATE_KEY =
-  process.env.PRIVATE_KEY ||
-  "0x0000000000000000000000000000000000000000000000000000000000000000";
-const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY || "";
-const INFURA_API_KEY = process.env.INFURA_API_KEY || "";
+// Private keys from your development wallet
+// Remove the 0x prefix from the key
+// const PRIVATE_KEY = process.env.PRIVATE_KEY?.startsWith("0x")
+//   ? process.env.PRIVATE_KEY.substring(2)
+//   : process.env.PRIVATE_KEY ||
+//     // Default Hardhat account #0 private key without 0x prefix
+//     "ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -23,27 +22,28 @@ const config: HardhatUserConfig = {
     },
   },
   networks: {
-    hardhat: {},
+    hardhat: {
+      chainId: 31337, // Default Hardhat chainId
+      mining: {
+        auto: true,
+        interval: 5000, // Block time in milliseconds (5 seconds)
+      },
+    },
+    // Local node that persists data (for MetaMask connection)
     localhost: {
-      url: "http://127.0.0.1:8545",
-    },
-    // Testnets
-    sepolia: {
-      url: `https://sepolia.infura.io/v3/${INFURA_API_KEY}`,
-      accounts: [PRIVATE_KEY],
-    },
-    // Mainnets
-    ethereum: {
-      url: `https://mainnet.infura.io/v3/${INFURA_API_KEY}`,
-      accounts: [PRIVATE_KEY],
+      url: "http://127.0.0.1:8545/",
+      chainId: 31337,
     },
   },
+  paths: {
+    sources: "./contracts",
+    tests: "./test",
+    cache: "./cache",
+    artifacts: "./artifacts",
+  },
+  // Etherscan verification config (for verified contracts on testnet/mainnet)
   etherscan: {
-    apiKey: ETHERSCAN_API_KEY,
-  },
-  gasReporter: {
-    enabled: process.env.REPORT_GAS !== undefined,
-    currency: "USD",
+    apiKey: process.env.ETHERSCAN_API_KEY,
   },
 };
 

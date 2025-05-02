@@ -28,6 +28,29 @@ export interface ActivityResponse {
   activity?: Activity;
 }
 
+export interface ActivityRegistration {
+  id: number;
+  studentId: string;
+  student: {
+    fullName: string;
+    studentCode: string;
+    class: string;
+    dateOfBirth: string;
+    role: string;
+    isStudent: boolean;
+    id: string;
+    userName: string;
+    email: string;
+    emailConfirmed: boolean;
+  };
+  activityId: number;
+  activity: Activity | null;
+  registeredAt: string;
+  isApproved: boolean;
+  approvedAt: string | null;
+  evidenceImageUrl: string | null;
+}
+
 export interface Student {
   studentCode: string;
   fullName: string;

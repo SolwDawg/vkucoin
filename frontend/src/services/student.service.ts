@@ -1,6 +1,10 @@
 "use client";
 
-import { StudentProfile } from "@/types/student";
+import {
+  StudentProfile,
+  StudentActivitiesResponse,
+  RegistrationResponse,
+} from "@/types/student";
 import { http } from "@/lib/http-client";
 import { useAuthStore } from "@/store/auth.store";
 
@@ -29,6 +33,36 @@ export const studentService = {
       // Fallback to API call if not available in store
       return await http.get<StudentProfile>("/student/Student");
     } catch (error) {
+      throw error;
+    }
+  },
+
+  async getActivities(): Promise<StudentActivitiesResponse> {
+    try {
+      return await http.get<StudentActivitiesResponse>("/student/Student");
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  async registerForActivity(activityId: number): Promise<RegistrationResponse> {
+    try {
+      // Extra validation check
+      if (!activityId) {
+        throw new Error("Activity ID is required");
+      }
+
+      // Log request being made
+      console.log(`Registering for activity: ${activityId}`);
+
+      const response = await http.post<RegistrationResponse>(
+        `/student/Student/${activityId}/register`
+      );
+
+      console.log("Registration response:", response);
+      return response;
+    } catch (error) {
+      console.error("Error registering for activity:", error);
       throw error;
     }
   },

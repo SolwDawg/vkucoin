@@ -114,4 +114,17 @@ export const adminService = {
   }> {
     return http.delete(`/admin/delete-student/${studentCode}`);
   },
+
+  // Get activity registrations for a specific activity
+  async getActivityRegistrations(activityId: string | number): Promise<any[]> {
+    return http.get(`/admin/Activities/${activityId}/registrations`);
+  },
+
+  // Approve a student's registration for an activity
+  async approveRegistration(
+    activityId: string | number,
+    studentCode: string
+  ): Promise<any> {
+    return http.post(`/admin/Activities/${activityId}/approve/${studentCode}`);
+  },
 };
