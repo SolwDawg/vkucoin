@@ -120,38 +120,39 @@ namespace backend.Controllers
 
         // POST: api/admin/activities/5/approve/student123
         [HttpPost("{activityId}/approve/{studentCode}")]
-        public async Task<IActionResult> ApproveRegistration(
-    int activityId,
-    string studentCode,
-    [FromServices] WalletService walletService)
+        public async Task<IActionResult> ApproveStudentRegistration(int activityId, string studentCode)
         {
-            // Tìm sinh viên bằng studentCode
             var student = await _userManager.Users
-                .Include(s => s.Wallet)
-                .FirstOrDefaultAsync(s => s.StudentCode == studentCode);
-
-            if (student == null) return NotFound("Không tìm thấy sinh viên");
-
-            // Tìm bản ghi đăng ký hoạt động
+              .Include(s => s.Wallet)
+              .FirstOrDefaultAsync(s => s.StudentCode == studentCode);
+            // Tìm bản ghi đăng ký
             var registration = await _context.ActivityRegistrations
                 .Include(ar => ar.Activity)
                 .FirstOrDefaultAsync(ar =>
                     ar.ActivityId == activityId &&
-                    ar.StudentId == student.Id); // Sử dụng student.Id vì ActivityRegistrations liên kết qua Id
+                    ar.StudentId == student.Id);
+            if (registration == null)
+                return NotFound("Không tìm thấy bản ghi đăng ký");
 
-            if (registration == null) return NotFound("Không tìm thấy bản ghi đăng ký hoạt động");
+            if (registration.IsApproved)
+                return BadRequest("Đăng ký đã được phê duyệt trước đó");
 
-            // Cập nhật trạng thái
+            // Cập nhật trạng thái phê duyệt
             registration.IsApproved = true;
             registration.ApprovedAt = DateTime.UtcNow;
 
-            // Cộng coin vào ví sinh viên
-            
+            await _context.SaveChangesAsync();
 
             return Ok(new
             {
-                Message = "Đã phê duyệt tham gia hoạt động",
-                
+                Message = "Phê duyệt đăng ký thành công",
+                Registration = new
+                {
+                    registration.ActivityId,
+                    registration.StudentId,
+                    registration.IsApproved,
+                    registration.ApprovedAt
+                }
             });
         }
 
@@ -174,68 +175,61 @@ namespace backend.Controllers
             });
         }
 
-        [Authorize(Roles = "Admin")]
-        [HttpPost("confirm-participation")]
-        public async Task<IActionResult> ConfirmParticipation(
-            [FromBody] ConfirmParticipationDto dto,
-            [FromServices] WalletService walletService)
+        [HttpPost("{activityId}/confirm-participation/{studentCode}")]
+        public async Task<IActionResult> ConfirmStudentParticipation(
+    int activityId,
+    string studentCode,
+    [FromServices] WalletService walletService)
         {
-            // Kiểm tra sinh viên có thuộc lớp được chỉ định không
+            // Tìm sinh viên bằng StudentCode
             var student = await _userManager.Users
-                .Include(u => u.Wallet)
-                .FirstOrDefaultAsync(u => u.StudentCode == dto.StudentCode);
+                .Include(s => s.Wallet)
+                .FirstOrDefaultAsync(s => s.StudentCode == studentCode);
 
-            if (student == null) return NotFound("Không tìm thấy sinh viên");
+            if (student == null)
+                return NotFound("Không tìm thấy sinh viên");
 
-            var activityToConfirm = await _context.Activities.FindAsync(dto.ActivityId);
-            if (activityToConfirm == null) return NotFound("Không tìm thấy hoạt động");
+            // Tìm hoạt động
+            var activity = await _context.Activities.FindAsync(activityId);
+            if (activity == null)
+                return NotFound("Không tìm thấy hoạt động");
 
-            // Kiểm tra lớp của sinh viên có được phép tham gia
-            if (!string.IsNullOrEmpty(activityToConfirm.AllowedClasses))
-            {
-                var allowedClasses = activityToConfirm.AllowedClasses.Split(',');
-                if (!allowedClasses.Contains(student.Class))
-                    return BadRequest("Sinh viên không thuộc lớp được chỉ định");
-            }
+            // Tìm bản ghi đăng ký theo ActivityId và StudentCode
+            var registration = await _context.ActivityRegistrations
+                .Include(ar => ar.Student) // Đảm bảo truy xuất dữ liệu liên quan
+                .FirstOrDefaultAsync(ar => ar.ActivityId == activityId && ar.Student.StudentCode == studentCode);
 
-            // Tạo hoặc cập nhật bản ghi tham gia
-            var participation = await _context.ActivityRegistrations
-                .FirstOrDefaultAsync(ar =>
-                    ar.ActivityId == dto.ActivityId &&
-                    ar.StudentId == student.Id);
+            if (registration == null || !registration.IsApproved)
+                return BadRequest("Đăng ký chưa được phê duyệt hoặc không tồn tại");
 
-            if (participation == null)
-            {
-                participation = new ActivityRegistration
-                {
-                    ActivityId = dto.ActivityId,
-                    StudentId = student.Id,
-                    EvidenceImageUrl = dto.EvidenceImageUrl
-                };
-                await _context.ActivityRegistrations.AddAsync(participation);
-            }
+            if (registration.IsParticipationConfirmed)
+                return BadRequest("Sinh viên đã được xác nhận tham gia trước đó");
 
-            // Xác nhận tham gia và cộng coin
-            participation.IsApproved = true;
-            participation.ApprovedAt = DateTime.UtcNow;
+            // Cập nhật trạng thái đã tham gia
+            registration.IsParticipationConfirmed = true;
+            registration.ParticipationConfirmedAt = DateTime.UtcNow;
 
-            // Cộng coin vào ví
+            // Cộng coin vào ví sinh viên
             var result = await walletService.AddCoinToWallet(
                 student.Id,
-                activityToConfirm.RewardCoin,
-                activityToConfirm.Name);
+                activity.RewardCoin,
+                activity.Name
+            );
 
-            if (!result.Success) return BadRequest("Lỗi khi cộng coin");
-            
-            student.Wallet.Balance += activityToConfirm.RewardCoin;
+            if (!result.Success)
+                return BadRequest("Lỗi khi cộng coin vào ví sinh viên");
+
+            // Cập nhật số dư ví sinh viên
+            student.Wallet.Balance += activity.RewardCoin;
 
             await _context.SaveChangesAsync();
 
             return Ok(new
             {
-                Message = "Đã xác nhận tham gia và cộng coin",
+                Message = "Đã xác nhận sinh viên tham gia và cộng coin",
                 NewBalance = student.Wallet.Balance
             });
         }
+
     }
 }

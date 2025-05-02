@@ -139,6 +139,37 @@ namespace backend.Controllers
         }
 
         [Authorize(Roles = "Admin")]
+        [HttpGet("students/all")]
+        public async Task<IActionResult> GetStudents()
+        {
+            try
+            {
+                // Lấy tất cả sinh viên với thông tin ví
+                var students = await _userManager.Users
+                    .Where(u => u.Role == "Student")
+                    .Include(u => u.Wallet)
+                    .Select(u => new StudentDto
+                    {
+                        StudentCode = u.StudentCode,
+                        FullName = u.FullName,
+                        Email = u.Email,
+                        Class = u.Class,
+                        DateOfBirth = u.DateOfBirth,
+                        WalletAddress = u.Wallet.Address,
+                        WalletBalance = u.Wallet.Balance,
+                    })
+                    .ToListAsync();
+
+                return Ok(students);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while fetching students");
+                return StatusCode(500, new { Message = "Internal server error" });
+            }
+        }
+
+        [Authorize(Roles = "Admin")]
         [HttpGet("students-by-class/{className}")]
         public async Task<IActionResult> GetStudentsByClass(string className)
         {
