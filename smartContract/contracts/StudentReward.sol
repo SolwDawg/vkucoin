@@ -10,16 +10,16 @@ import "./VkuCoin.sol";
  */
 contract StudentReward is AccessControl {
     // Reference to the VkuCoin token
-    VkuCoin public vkuToken;
+    VkuCoin public immutable vkuToken;
     
-    // Role definitions 
+    // Role definitions - use constant to save gas
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
     
-    // Activity structure
+    // Activity structure - optimized by packing related fields
     struct Activity {
         string name;
         string description;
-        uint256 rewardAmount;
+        uint96 rewardAmount; // Reduced from uint256 as rewards likely won't exceed 2^96-1
         bool isActive;
     }
     
@@ -32,9 +32,9 @@ contract StudentReward is AccessControl {
     mapping(address => mapping(uint256 => bool)) public completedActivities;
     
     // Events
-    event ActivityCreated(uint256 indexed activityId, string name, uint256 rewardAmount);
-    event ActivityUpdated(uint256 indexed activityId, string name, uint256 rewardAmount, bool isActive);
-    event ActivityCompleted(address indexed student, uint256 indexed activityId, uint256 rewardAmount);
+    event ActivityCreated(uint256 indexed activityId, string name, uint96 rewardAmount);
+    event ActivityUpdated(uint256 indexed activityId, string name, uint96 rewardAmount, bool isActive);
+    event ActivityCompleted(address indexed student, uint256 indexed activityId, uint96 rewardAmount);
     
     /**
      * @dev Sets the VkuCoin token address and grants admin role
@@ -56,11 +56,11 @@ contract StudentReward is AccessControl {
      * @return activityId ID of the created activity
      */
     function createActivity(
-        string memory name, 
-        string memory description, 
-        uint256 rewardAmount
-    ) public onlyRole(ADMIN_ROLE) returns (uint256) {
-        uint256 activityId = nextActivityId;
+        string calldata name, 
+        string calldata description, 
+        uint96 rewardAmount
+    ) external onlyRole(ADMIN_ROLE) returns (uint256) {
+        uint256 activityId = nextActivityId++;
         
         activities[activityId] = Activity({
             name: name,
@@ -68,8 +68,6 @@ contract StudentReward is AccessControl {
             rewardAmount: rewardAmount,
             isActive: true
         });
-        
-        nextActivityId++;
         
         emit ActivityCreated(activityId, name, rewardAmount);
         
@@ -86,11 +84,11 @@ contract StudentReward is AccessControl {
      */
     function updateActivity(
         uint256 activityId,
-        string memory name,
-        string memory description,
-        uint256 rewardAmount,
+        string calldata name,
+        string calldata description,
+        uint96 rewardAmount,
         bool isActive
-    ) public onlyRole(ADMIN_ROLE) {
+    ) external onlyRole(ADMIN_ROLE) {
         require(activityId < nextActivityId, "Activity does not exist");
         
         Activity storage activity = activities[activityId];
@@ -110,11 +108,10 @@ contract StudentReward is AccessControl {
      */
     function completeActivity(address student, uint256 activityId) public onlyRole(ADMIN_ROLE) {
         require(activityId < nextActivityId, "Activity does not exist");
-        require(activities[activityId].isActive, "Activity is not active");
+        Activity memory activity = activities[activityId];
+        require(activity.isActive, "Activity is not active");
         require(vkuToken.isStudent(student), "Address is not a registered student");
         require(!completedActivities[student][activityId], "Student already completed this activity");
-        
-        Activity memory activity = activities[activityId];
         
         // Mark activity as completed for this student
         completedActivities[student][activityId] = true;
@@ -128,11 +125,24 @@ contract StudentReward is AccessControl {
      * @param students Array of student addresses
      * @param activityId ID of the completed activity
      */
-    function batchCompleteActivity(address[] memory students, uint256 activityId) public onlyRole(ADMIN_ROLE) {
-        for (uint256 i = 0; i < students.length; i++) {
+    function batchCompleteActivity(address[] calldata students, uint256 activityId) external onlyRole(ADMIN_ROLE) {
+        require(activityId < nextActivityId, "Activity does not exist");
+        require(activities[activityId].isActive, "Activity is not active");
+        
+        uint256 length = students.length;
+        for (uint256 i = 0; i < length;) {
+            address student = students[i];
             // Only process if the student hasn't already completed the activity
-            if (!completedActivities[students[i]][activityId] && vkuToken.isStudent(students[i])) {
-                completeActivity(students[i], activityId);
+            if (!completedActivities[student][activityId] && vkuToken.isStudent(student)) {
+                // Mark activity as completed
+                completedActivities[student][activityId] = true;
+                
+                // Emit event
+                emit ActivityCompleted(student, activityId, activities[activityId].rewardAmount);
+            }
+            // Use unchecked to save gas on increment operation
+            unchecked {
+                ++i;
             }
         }
     }
@@ -143,7 +153,7 @@ contract StudentReward is AccessControl {
      * @param activityId ID of the activity
      * @return True if the student has completed the activity
      */
-    function hasCompleted(address student, uint256 activityId) public view returns (bool) {
+    function hasCompleted(address student, uint256 activityId) external view returns (bool) {
         require(activityId < nextActivityId, "Activity does not exist");
         return completedActivities[student][activityId];
     }
@@ -156,10 +166,10 @@ contract StudentReward is AccessControl {
      * @return rewardAmount Amount of tokens rewarded for completion
      * @return isActive Whether the activity is active
      */
-    function getActivity(uint256 activityId) public view returns (
+    function getActivity(uint256 activityId) external view returns (
         string memory name,
         string memory description,
-        uint256 rewardAmount,
+        uint96 rewardAmount,
         bool isActive
     ) {
         require(activityId < nextActivityId, "Activity does not exist");

@@ -30,7 +30,7 @@ contract VkuCoin is ERC20, ERC20Burnable, AccessControl {
      * @param to The account that will receive the created tokens
      * @param amount The amount of tokens to create
      */
-    function mint(address to, uint256 amount) public onlyRole(ADMIN_ROLE) {
+    function mint(address to, uint256 amount) external onlyRole(ADMIN_ROLE) {
         _mint(to, amount);
     }
     
@@ -38,7 +38,7 @@ contract VkuCoin is ERC20, ERC20Burnable, AccessControl {
      * @dev Grants STUDENT_ROLE to an account
      * @param student The account to grant the role to
      */
-    function addStudent(address student) public onlyRole(ADMIN_ROLE) {
+    function addStudent(address student) external onlyRole(ADMIN_ROLE) {
         grantRole(STUDENT_ROLE, student);
     }
     
@@ -46,7 +46,7 @@ contract VkuCoin is ERC20, ERC20Burnable, AccessControl {
      * @dev Revokes STUDENT_ROLE from an account
      * @param student The account to revoke the role from
      */
-    function removeStudent(address student) public onlyRole(ADMIN_ROLE) {
+    function removeStudent(address student) external onlyRole(ADMIN_ROLE) {
         revokeRole(STUDENT_ROLE, student);
     }
     
@@ -55,7 +55,7 @@ contract VkuCoin is ERC20, ERC20Burnable, AccessControl {
      * @param account The account to check
      * @return bool True if the account has STUDENT_ROLE
      */
-    function isStudent(address account) public view returns (bool) {
+    function isStudent(address account) external view returns (bool) {
         return hasRole(STUDENT_ROLE, account);
     }
 }
