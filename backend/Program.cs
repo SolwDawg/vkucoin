@@ -124,6 +124,8 @@ builder.Services.AddHealthChecks()
             return HealthCheckResult.Unhealthy(ex.Message);
         }
     });
+    
+builder.Services.AddScoped<BlockchainService>();
 
 var app = builder.Build();
 
