@@ -1,13 +1,14 @@
-using Nethereum.Web3;
-using Nethereum.Web3.Accounts;
-using backend.Models;
-using Nethereum.Hex.HexConvertors.Extensions;
-using Microsoft.EntityFrameworkCore;
-using backend.Data;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Configuration;
 using System;
 using System.Threading.Tasks;
+using System.Numerics;
+using Nethereum.Web3;
+using Nethereum.Web3.Accounts;
+using Nethereum.Hex.HexConvertors.Extensions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
+using backend.Models;
+using backend.Data;
 
 namespace backend.Services
 {
@@ -16,48 +17,50 @@ namespace backend.Services
         private readonly IWeb3 _web3;
         private readonly ILogger<WalletService> _logger;
         private readonly ApplicationDbContext _context;
+        private readonly BlockchainService _blockchainService;
 
-        public WalletService(IConfiguration configuration, ILogger<WalletService> logger, ApplicationDbContext context)
+        public WalletService(
+            IConfiguration configuration,
+            ILogger<WalletService> logger,
+            ApplicationDbContext context,
+            BlockchainService blockchainService)
         {
-            var blockchainUrl = configuration["Blockchain:Url"];
+            var blockchainUrl = configuration["Blockchain:NodeUrl"];
             _web3 = new Web3(blockchainUrl);
             _logger = logger;
             _context = context;
+            _blockchainService = blockchainService;
         }
 
         public async Task<Wallet> CreateWalletWithZeroBalance(string userId)
         {
             try
             {
-                // Kiểm tra userId hợp lệ
                 if (string.IsNullOrEmpty(userId))
-                {
                     throw new ArgumentException("UserId không hợp lệ.");
-                }
 
-                // Kiểm tra ví đã tồn tại
-                var existingWallet = await _context.Wallets.AsNoTracking().FirstOrDefaultAsync(w => w.UserId == userId);
+                var existingWallet = await _context.Wallets
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(w => w.UserId == userId);
+
                 if (existingWallet != null)
                 {
                     _logger.LogInformation($"Wallet already exists for user {userId}.");
                     return existingWallet;
                 }
 
-                // Tạo khóa cá nhân và tài khoản mới
                 var ecKey = Nethereum.Signer.EthECKey.GenerateKey();
                 var privateKey = ecKey.GetPrivateKeyAsBytes().ToHex();
                 var account = new Account(privateKey);
 
-                // Tạo đối tượng ví
                 var wallet = new Wallet
                 {
                     Address = account.Address,
                     PrivateKey = privateKey,
-                    Balance = 0, // Số dư ban đầu
+                    Balance = 0,
                     UserId = userId
                 };
 
-                // Thêm ví vào cơ sở dữ liệu
                 await _context.Wallets.AddAsync(wallet);
                 await _context.SaveChangesAsync();
 
@@ -88,38 +91,55 @@ namespace backend.Services
         {
             try
             {
-                // Tìm ví của người dùng
-                var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.UserId == userId);
+                var user = await _context.Users
+                    .Include(u => u.Wallet)
+                    .FirstOrDefaultAsync(u => u.Id == userId);
 
-                if (wallet == null)
-                {
+                if (user?.Wallet == null)
                     return new TransactionResult(false, "Không tìm thấy ví");
-                }
 
-                // Cộng thêm số coin mới vào số dư hiện tại
-                wallet.Balance += coinAmount;
+                if (string.IsNullOrEmpty(user.Wallet.Address))
+                    return new TransactionResult(false, "Người dùng chưa đăng ký địa chỉ ví");
 
-                _context.Wallets.Update(wallet);
+                // Thêm STUDENT_ROLE nếu cần
+                if (!await _blockchainService.IsStudent(user.Wallet.Address))
+                    await _blockchainService.AddStudentRole(user.Wallet.Address);
 
-                // Ghi log giao dịch
+                // Mint token trên blockchain
+                var txHash = await _blockchainService.MintTokens(
+                    user.Wallet.Address,
+                    coinAmount
+                );
+
+                // Cập nhật database
+                user.Wallet.Balance += coinAmount;
+
                 _context.TransactionLogs.Add(new TransactionLog
                 {
                     UserId = userId,
                     Amount = coinAmount,
                     TransactionType = "ActivityReward",
                     Description = $"Nhận coin từ hoạt động {activityName}",
+                    // TransactionHash = txHash,
                     CreatedAt = DateTime.UtcNow
                 });
 
-                // Lưu thay đổi vào cơ sở dữ liệu
                 await _context.SaveChangesAsync();
 
-                return new TransactionResult(true, "Cộng coin thành công", wallet.Balance);
+                // Đồng bộ số dư từ blockchain
+                var syncedBalance = await SyncWalletBalance(user.Wallet.Address);
+
+                return new TransactionResult(
+                    true,
+                    $"Cộng coin thành công. Transaction hash: {txHash}",
+                    syncedBalance,
+                    txHash
+                );
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Error adding coin to wallet for user {userId}");
-                return new TransactionResult(false, "Lỗi hệ thống khi cộng coin");
+                return new TransactionResult(false, $"Lỗi hệ thống khi cộng coin: {ex.Message}");
             }
         }
 
@@ -127,23 +147,36 @@ namespace backend.Services
         {
             try
             {
-                var balance = await _web3.Eth.GetBalance.SendRequestAsync(address);
-                var balanceInEther = Web3.Convert.FromWei(balance.Value);
+                var vkuCoinAbi = await _blockchainService.LoadAbi("VkuCoin");
+                var contract = _web3.Eth.GetContract(
+                    vkuCoinAbi,
+                    _blockchainService.VkuCoinAddress
+                );
 
-                // Cập nhật cơ sở dữ liệu
-                var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.Address == address);
+                var balance = await contract.GetFunction("balanceOf")
+                    .CallAsync<BigInteger>(address);
+
+                var balanceInToken = Web3.Convert.FromWei(balance);
+
+                var wallet = await _context.Wallets
+                    .FirstOrDefaultAsync(w => w.Address == address);
+
                 if (wallet != null)
                 {
-                    wallet.Balance = balanceInEther;
+                    wallet.Balance = balanceInToken;
                     await _context.SaveChangesAsync();
                 }
 
-                return balanceInEther;
+                return balanceInToken;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Error syncing balance for wallet {address}");
-                throw;
+
+                var wallet = await _context.Wallets
+                    .FirstOrDefaultAsync(w => w.Address == address);
+
+                return wallet?.Balance ?? 0;
             }
         }
 
@@ -152,12 +185,18 @@ namespace backend.Services
             public bool Success { get; }
             public string Message { get; }
             public decimal? NewBalance { get; }
+            public string TransactionHash { get; }
 
-            public TransactionResult(bool success, string message, decimal? newBalance = null)
+            public TransactionResult(
+                bool success,
+                string message,
+                decimal? newBalance = null,
+                string transactionHash = null)
             {
                 Success = success;
                 Message = message;
                 NewBalance = newBalance;
+                TransactionHash = transactionHash;
             }
         }
     }

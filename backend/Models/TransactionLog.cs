@@ -13,6 +13,7 @@ namespace backend.Models
         public decimal Amount { get; set; }
         public string TransactionType { get; set; } // "ActivityReward", "Transfer", etc.
         public string Description { get; set; }
+         public string TransactionHash { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 }
