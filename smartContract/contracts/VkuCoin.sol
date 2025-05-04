@@ -22,7 +22,7 @@ contract VkuCoin is ERC20, ERC20Burnable, AccessControl {
         _grantRole(ADMIN_ROLE, admin);
         
         // Initial supply of 1 million tokens (with 18 decimals)
-        _mint(admin, 1_000_000 * 10 ** decimals());
+        _mint(admin, 100_000_000 * 10 ** decimals());
     }
 
     /**
