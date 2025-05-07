@@ -33,7 +33,7 @@ namespace backend.Models
         public bool IsActive { get; set; } = true;
 
         [Required]
-        public string ImageUrl { get; set; } // URL ảnh đại diện hoạt động
+        public string? ImageUrl { get; set; } // URL ảnh đại diện hoạt động
 
         [Required]
         public string Location { get; set; }
