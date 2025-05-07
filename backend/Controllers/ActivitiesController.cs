@@ -64,7 +64,11 @@ namespace backend.Controllers
                 StartDate = dto.StartDate,
                 EndDate = dto.EndDate,
                 RewardCoin = dto.RewardCoin,
-                MaxParticipants = dto.MaxParticipants
+                MaxParticipants = dto.MaxParticipants,
+                ImageUrl = dto.ImageUrl,
+                Location = dto.Location,
+                AutoApprove = dto.AutoApprove,
+                Organizer = dto.Organizer
             };
 
             await _context.Activities.AddAsync(activity);
@@ -86,6 +90,7 @@ namespace backend.Controllers
             activity.EndDate = dto.EndDate ?? activity.EndDate;
             activity.RewardCoin = dto.RewardCoin ?? activity.RewardCoin;
             activity.MaxParticipants = dto.MaxParticipants ?? activity.MaxParticipants;
+            
 
             await _context.SaveChangesAsync();
 
