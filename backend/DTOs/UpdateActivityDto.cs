@@ -13,5 +13,11 @@ namespace backend.DTOs
         public DateTime? EndDate { get; set; }
         public int? RewardCoin { get; set; }
         public int? MaxParticipants { get; set; }
+        public string? ImageUrl {get; set;}
+        public string? Location {get;set;}
+        public bool? AutoApprove {get; set;}
+        
+        public string? Status {get; set;}
+        public string? Organizer {get;set;}
     }
 }
