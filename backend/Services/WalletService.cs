@@ -147,16 +147,19 @@ namespace backend.Services
         {
             try
             {
-                var vkuCoinAbi = await _blockchainService.LoadAbi("VkuCoin");
+                // Use the BlockchainService to get the contract details
                 var contract = _web3.Eth.GetContract(
-                    vkuCoinAbi,
+                    await _blockchainService.LoadAbi("VkuCoin"),
                     _blockchainService.VkuCoinAddress
                 );
 
+                // Fetch the balance using the balanceOf function
                 var balance = await contract.GetFunction("balanceOf")
                     .CallAsync<BigInteger>(address);
 
                 var balanceInToken = Web3.Convert.FromWei(balance);
+                
+                _logger.LogInformation($"Retrieved balance for {address}: {balanceInToken}");
 
                 var wallet = await _context.Wallets
                     .FirstOrDefaultAsync(w => w.Address == address);
@@ -165,6 +168,7 @@ namespace backend.Services
                 {
                     wallet.Balance = balanceInToken;
                     await _context.SaveChangesAsync();
+                    _logger.LogInformation($"Updated wallet balance in database: {balanceInToken}");
                 }
 
                 return balanceInToken;

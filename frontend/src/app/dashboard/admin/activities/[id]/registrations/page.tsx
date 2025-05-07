@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle, ArrowLeft, Loader2 } from "lucide-react";
+import { CheckCircle, XCircle, ArrowLeft, Loader2, Award } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { AdminLayout } from "@/components/layouts/AdminLayout";
@@ -43,6 +43,7 @@ export default function ActivityRegistrationsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [approvingStudents, setApprovingStudents] = useState<string[]>([]);
+  const [confirmingStudents, setConfirmingStudents] = useState<string[]>([]);
 
   async function fetchRegistrations() {
     try {
@@ -99,6 +100,40 @@ export default function ActivityRegistrationsPage() {
     } finally {
       // Remove studentCode from loading state
       setApprovingStudents((prev) =>
+        prev.filter((code) => code !== registration.student.studentCode)
+      );
+    }
+  };
+
+  const handleConfirmParticipation = async (
+    registration: ActivityRegistration
+  ) => {
+    try {
+      // Add studentCode to loading state
+      setConfirmingStudents((prev) => [
+        ...prev,
+        registration.student.studentCode,
+      ]);
+
+      // Call the API to confirm participation
+      await adminService.confirmParticipation(
+        id as string,
+        registration.student.studentCode
+      );
+
+      // Show success toast
+      toast.success(
+        `Successfully confirmed ${registration.student.fullName}'s participation`
+      );
+
+      // Refresh the registrations list
+      await fetchRegistrations();
+    } catch (err) {
+      console.error("Error confirming participation:", err);
+      toast.error("Failed to confirm participation. Please try again.");
+    } finally {
+      // Remove studentCode from loading state
+      setConfirmingStudents((prev) =>
         prev.filter((code) => code !== registration.student.studentCode)
       );
     }
@@ -187,6 +222,7 @@ export default function ActivityRegistrationsPage() {
                       <TableHead>Class</TableHead>
                       <TableHead>Registration Date</TableHead>
                       <TableHead>Status</TableHead>
+                      <TableHead>Participation</TableHead>
                       <TableHead>Evidence</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
@@ -221,6 +257,34 @@ export default function ActivityRegistrationsPage() {
                           )}
                         </TableCell>
                         <TableCell>
+                          {registration.isParticipationConfirmed ? (
+                            <div>
+                              <Badge
+                                variant="success"
+                                className="flex items-center gap-1 mb-1"
+                              >
+                                <Award className="h-3 w-3" />
+                                Participated
+                              </Badge>
+                              <div className="text-xs text-muted-foreground">
+                                {format(
+                                  new Date(
+                                    registration.participationConfirmedAt!
+                                  ),
+                                  "PPp"
+                                )}
+                              </div>
+                            </div>
+                          ) : (
+                            <Badge
+                              variant="outline"
+                              className="flex items-center gap-1"
+                            >
+                              Not Confirmed
+                            </Badge>
+                          )}
+                        </TableCell>
+                        <TableCell>
                           {registration.evidenceImageUrl ? (
                             <Link
                               href={registration.evidenceImageUrl}
@@ -236,31 +300,62 @@ export default function ActivityRegistrationsPage() {
                           )}
                         </TableCell>
                         <TableCell>
-                          {!registration.isApproved && (
-                            <Button
-                              variant="default"
-                              size="sm"
-                              onClick={() => handleApprove(registration)}
-                              disabled={approvingStudents.includes(
-                                registration.student.studentCode
+                          <div className="flex gap-2">
+                            {!registration.isApproved && (
+                              <Button
+                                variant="default"
+                                size="sm"
+                                onClick={() => handleApprove(registration)}
+                                disabled={approvingStudents.includes(
+                                  registration.student.studentCode
+                                )}
+                                className="flex items-center gap-1"
+                              >
+                                {approvingStudents.includes(
+                                  registration.student.studentCode
+                                ) ? (
+                                  <>
+                                    <Loader2 className="h-3 w-3 animate-spin" />
+                                    Approving...
+                                  </>
+                                ) : (
+                                  <>
+                                    <CheckCircle className="h-3 w-3" />
+                                    Approve
+                                  </>
+                                )}
+                              </Button>
+                            )}
+
+                            {registration.isApproved &&
+                              !registration.isParticipationConfirmed && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() =>
+                                    handleConfirmParticipation(registration)
+                                  }
+                                  disabled={confirmingStudents.includes(
+                                    registration.student.studentCode
+                                  )}
+                                  className="flex items-center gap-1"
+                                >
+                                  {confirmingStudents.includes(
+                                    registration.student.studentCode
+                                  ) ? (
+                                    <>
+                                      <Loader2 className="h-3 w-3 animate-spin" />
+                                      Confirming...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Award className="h-3 w-3" />
+                                      Confirm Participation
+                                    </>
+                                  )}
+                                </Button>
                               )}
-                              className="flex items-center gap-1"
-                            >
-                              {approvingStudents.includes(
-                                registration.student.studentCode
-                              ) ? (
-                                <>
-                                  <Loader2 className="h-3 w-3 animate-spin" />
-                                  Approving...
-                                </>
-                              ) : (
-                                <>
-                                  <CheckCircle className="h-3 w-3" />
-                                  Approve
-                                </>
-                              )}
-                            </Button>
-                          )}
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}

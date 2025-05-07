@@ -127,4 +127,19 @@ export const adminService = {
   ): Promise<any> {
     return http.post(`/admin/Activities/${activityId}/approve/${studentCode}`);
   },
+
+  // Confirm a student's participation in an activity
+  async confirmParticipation(
+    activityId: string | number,
+    studentCode: string
+  ): Promise<any> {
+    return http.post(
+      `/admin/Activities/${activityId}/confirm-participation/${studentCode}`
+    );
+  },
+
+  // Get all students
+  async getAllStudents(): Promise<Student[]> {
+    return http.get("/admin/students/all");
+  },
 };

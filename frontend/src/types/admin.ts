@@ -48,6 +48,8 @@ export interface ActivityRegistration {
   registeredAt: string;
   isApproved: boolean;
   approvedAt: string | null;
+  isParticipationConfirmed: boolean;
+  participationConfirmedAt: string | null;
   evidenceImageUrl: string | null;
 }
 
