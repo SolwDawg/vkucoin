@@ -26,6 +26,10 @@ export const adminService = {
     endDate: string;
     rewardCoin: number;
     maxParticipants: number;
+    imageUrl?: string;
+    location?: string;
+    autoApprove?: boolean;
+    organizer?: string;
   }): Promise<any> {
     return http.post("/admin/Activities", activityData);
   },
@@ -47,6 +51,11 @@ export const adminService = {
       endDate: string;
       rewardCoin: number;
       maxParticipants: number;
+      imageUrl?: string;
+      location?: string;
+      autoApprove?: boolean;
+      organizer?: string;
+      status?: string;
     }
   ): Promise<any> {
     return http.put(`/admin/Activities/${id}`, activityData);

@@ -11,6 +11,11 @@ import {
   Save,
   AlertCircle,
   CheckCircle,
+  MapPin,
+  Image,
+  User,
+  Check,
+  Info,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -18,6 +23,14 @@ interface ActivityFormProps {
   activityId?: string;
   mode: "create" | "edit";
 }
+
+// Status options for the dropdown
+const STATUS_OPTIONS = [
+  { value: "Active", label: "Active" },
+  { value: "Upcoming", label: "Upcoming" },
+  { value: "Completed", label: "Completed" },
+  { value: "Cancelled", label: "Cancelled" },
+];
 
 export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
   const router = useRouter();
@@ -28,6 +41,11 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
     endDate: "",
     rewardCoin: 0,
     maxParticipants: 0,
+    imageUrl: "",
+    location: "",
+    autoApprove: false,
+    organizer: "",
+    status: mode === "create" ? "Active" : "",
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -40,6 +58,7 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
     const fetchActivity = async () => {
       if (mode === "edit" && activityId) {
         try {
+          setIsFetching(true);
           const data = await adminService.getActivity(activityId);
 
           // Format dates for datetime-local input (yyyy-MM-ddThh:mm)
@@ -54,6 +73,8 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
             ...data,
             startDate: formattedStartDate,
             endDate: formattedEndDate,
+            // Set default status if not provided from API
+            status: data.status || "Active",
           });
         } catch (err) {
           setError(
@@ -71,16 +92,20 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
   }, [activityId, mode]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
-    const { name, value } = e.target;
+    const { name, value, type } = e.target as HTMLInputElement;
 
     setActivity({
       ...activity,
       [name]:
         name === "rewardCoin" || name === "maxParticipants"
           ? parseInt(value) || 0
-          : value,
+          : type === "checkbox"
+            ? (e.target as HTMLInputElement).checked
+            : value,
     });
   };
 
@@ -120,6 +145,21 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
       return false;
     }
 
+    if (!activity.location || !activity.location.trim()) {
+      setError("Location is required");
+      return false;
+    }
+
+    if (!activity.organizer || !activity.organizer.trim()) {
+      setError("Organizer is required");
+      return false;
+    }
+
+    if (!activity.status) {
+      setError("Status is required");
+      return false;
+    }
+
     return true;
   };
 
@@ -156,6 +196,11 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
           endDate: "",
           rewardCoin: 0,
           maxParticipants: 0,
+          imageUrl: "",
+          location: "",
+          autoApprove: false,
+          organizer: "",
+          status: "Active",
         });
       } else {
         if (!activityId) {
@@ -250,7 +295,7 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
               type="text"
               value={activity.name}
               onChange={handleChange}
-              className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
               placeholder="Enter activity name"
               required
             />
@@ -266,13 +311,13 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
             <textarea
               id="description"
               name="description"
+              rows={4}
               value={activity.description}
               onChange={handleChange}
-              rows={4}
-              className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
               placeholder="Enter activity description"
               required
-            />
+            ></textarea>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -281,22 +326,20 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
                 htmlFor="startDate"
                 className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
               >
-                Start Date
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Calendar className="h-5 w-5 text-gray-400" />
+                <div className="flex items-center">
+                  <Calendar className="h-4 w-4 mr-1.5" />
+                  <span>Start Date & Time</span>
                 </div>
-                <input
-                  id="startDate"
-                  name="startDate"
-                  type="datetime-local"
-                  value={activity.startDate}
-                  onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
+              </label>
+              <input
+                id="startDate"
+                name="startDate"
+                type="datetime-local"
+                value={activity.startDate}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                required
+              />
             </div>
 
             <div>
@@ -304,22 +347,20 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
                 htmlFor="endDate"
                 className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
               >
-                End Date
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Calendar className="h-5 w-5 text-gray-400" />
+                <div className="flex items-center">
+                  <Clock className="h-4 w-4 mr-1.5" />
+                  <span>End Date & Time</span>
                 </div>
-                <input
-                  id="endDate"
-                  name="endDate"
-                  type="datetime-local"
-                  value={activity.endDate}
-                  onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
+              </label>
+              <input
+                id="endDate"
+                name="endDate"
+                type="datetime-local"
+                value={activity.endDate}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                required
+              />
             </div>
           </div>
 
@@ -329,24 +370,21 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
                 htmlFor="rewardCoin"
                 className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
               >
-                Reward Coins
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Coins className="h-5 w-5 text-gray-400" />
+                <div className="flex items-center">
+                  <Coins className="h-4 w-4 mr-1.5" />
+                  <span>Reward Coins</span>
                 </div>
-                <input
-                  id="rewardCoin"
-                  name="rewardCoin"
-                  type="number"
-                  min="0"
-                  value={activity.rewardCoin}
-                  onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="0"
-                  required
-                />
-              </div>
+              </label>
+              <input
+                id="rewardCoin"
+                name="rewardCoin"
+                type="number"
+                min="1"
+                value={activity.rewardCoin}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                required
+              />
             </div>
 
             <div>
@@ -354,42 +392,151 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
                 htmlFor="maxParticipants"
                 className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
               >
-                Maximum Participants
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Users className="h-5 w-5 text-gray-400" />
+                <div className="flex items-center">
+                  <Users className="h-4 w-4 mr-1.5" />
+                  <span>Max Participants</span>
                 </div>
-                <input
-                  id="maxParticipants"
-                  name="maxParticipants"
-                  type="number"
-                  min="0"
-                  value={activity.maxParticipants}
-                  onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="0"
-                  required
-                />
-              </div>
+              </label>
+              <input
+                id="maxParticipants"
+                name="maxParticipants"
+                type="number"
+                min="1"
+                value={activity.maxParticipants}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                required
+              />
             </div>
           </div>
 
-          <div className="flex justify-end space-x-3">
+          <div>
+            <label
+              htmlFor="imageUrl"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
+            >
+              <div className="flex items-center">
+                <Image className="h-4 w-4 mr-1.5" />
+                <span>Image URL</span>
+              </div>
+            </label>
+            <input
+              id="imageUrl"
+              name="imageUrl"
+              type="text"
+              value={activity.imageUrl || ""}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+              placeholder="Enter image URL (optional)"
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="location"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
+            >
+              <div className="flex items-center">
+                <MapPin className="h-4 w-4 mr-1.5" />
+                <span>Location</span>
+              </div>
+            </label>
+            <input
+              id="location"
+              name="location"
+              type="text"
+              value={activity.location || ""}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+              placeholder="Enter activity location"
+              required
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="organizer"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
+            >
+              <div className="flex items-center">
+                <User className="h-4 w-4 mr-1.5" />
+                <span>Organizer</span>
+              </div>
+            </label>
+            <input
+              id="organizer"
+              name="organizer"
+              type="text"
+              value={activity.organizer || ""}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+              placeholder="Enter organizer name"
+              required
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="status"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
+            >
+              <div className="flex items-center">
+                <Info className="h-4 w-4 mr-1.5" />
+                <span>Status</span>
+              </div>
+            </label>
+            <select
+              id="status"
+              name="status"
+              value={activity.status || ""}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+              required
+            >
+              <option value="" disabled>
+                Select a status
+              </option>
+              {STATUS_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex items-center mt-2">
+            <input
+              id="autoApprove"
+              name="autoApprove"
+              type="checkbox"
+              checked={activity.autoApprove || false}
+              onChange={handleChange}
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            />
+            <label
+              htmlFor="autoApprove"
+              className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
+            >
+              <div className="flex items-center">
+                <Check className="h-4 w-4 mr-1.5" />
+                <span>Auto-approve registrations</span>
+              </div>
+            </label>
+          </div>
+
+          <div className="pt-4 flex space-x-4">
             <button
               type="button"
               onClick={() => router.push("/dashboard/admin/activities")}
-              className="py-2.5 px-6 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-700"
+              className="px-4 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg flex-1"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isLoading}
-              className={`py-2.5 px-6 rounded-lg text-white font-medium flex items-center justify-center transition-colors ${
-                isLoading
-                  ? "bg-blue-400 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700"
+              className={`flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg flex items-center justify-center ${
+                isLoading ? "opacity-70 cursor-not-allowed" : ""
               }`}
             >
               {isLoading ? (
@@ -414,12 +561,12 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     ></path>
                   </svg>
-                  {mode === "create" ? "Creating..." : "Updating..."}
+                  Saving...
                 </>
               ) : (
                 <>
-                  <Save className="h-5 w-5 mr-2" />
-                  {mode === "create" ? "Create Activity" : "Update Activity"}
+                  <Save className="h-5 w-5 mr-1.5" />
+                  {mode === "create" ? "Create Activity" : "Save Changes"}
                 </>
               )}
             </button>

@@ -64,13 +64,27 @@ namespace backend.Services
 
             var token = GetToken(authClaims);
 
+            // Sync wallet balance from blockchain
             var wallet = await _context.Wallets
                 .FirstOrDefaultAsync(w => w.UserId == user.Id);
+            
             if (wallet != null)
             {
-                wallet.Balance = await _walletService.GetWalletBalance(wallet.Address);
-                await _context.SaveChangesAsync();
+                try
+                {
+                    // Use SyncWalletBalance instead of GetWalletBalance to get the actual blockchain balance
+                    await _walletService.SyncWalletBalance(wallet.Address);
+                    
+                    // Refresh wallet data after sync
+                    wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.UserId == user.Id);
+                }
+                catch (Exception ex)
+                {
+                    // Log error but continue - don't fail login if blockchain sync fails
+                    Console.WriteLine($"Error syncing wallet balance during login: {ex.Message}");
+                }
             }
+            
             return new AuthResponse
             {
                 Token = new JwtSecurityTokenHandler().WriteToken(token),

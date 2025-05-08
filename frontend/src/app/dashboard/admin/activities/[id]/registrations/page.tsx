@@ -126,6 +126,16 @@ export default function ActivityRegistrationsPage() {
         `Successfully confirmed ${registration.student.fullName}'s participation`
       );
 
+      // Broadcast a custom event that wallet balances have changed
+      // This will be picked up by relevant components to refresh their data
+      const walletUpdateEvent = new CustomEvent("wallet-balance-updated", {
+        detail: {
+          studentCode: registration.student.studentCode,
+          activityId: id,
+        },
+      });
+      window.dispatchEvent(walletUpdateEvent);
+
       // Refresh the registrations list
       await fetchRegistrations();
     } catch (err) {

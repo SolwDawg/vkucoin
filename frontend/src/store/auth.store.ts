@@ -3,12 +3,14 @@
 import { create } from "zustand";
 import { AuthState, LoginResponse } from "@/types/auth";
 import { authService } from "@/services/auth.service";
+import { walletService } from "@/services/wallet.service";
 
 interface AuthStore extends AuthState {
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   setAuth: (data: LoginResponse) => void;
   initializeFromStorage: () => void;
+  refreshWalletBalance: () => Promise<void>;
 }
 
 // Helper to safely parse localStorage items
@@ -26,7 +28,7 @@ const getStorageItem = (key: string) => {
   return null;
 };
 
-export const useAuthStore = create<AuthStore>((set) => ({
+export const useAuthStore = create<AuthStore>((set, get) => ({
   token: null,
   user: null,
   wallet: null,
@@ -94,6 +96,27 @@ export const useAuthStore = create<AuthStore>((set) => ({
         wallet,
         isAuthenticated: true,
       });
+    }
+  },
+
+  refreshWalletBalance: async () => {
+    try {
+      const { wallet } = get();
+      if (!wallet) return;
+
+      // Sync wallet balance from blockchain
+      const result = await walletService.syncWalletBalance();
+
+      // Update wallet in state with new balance
+      const updatedWallet = { ...wallet, balance: result.newBalance };
+
+      // Update localStorage
+      localStorage.setItem("wallet", JSON.stringify(updatedWallet));
+
+      // Update store
+      set({ wallet: updatedWallet });
+    } catch (error) {
+      console.error("Failed to refresh wallet balance:", error);
     }
   },
 }));

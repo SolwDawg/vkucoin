@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import DashboardLayout from "@/components/layouts/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Wallet, GraduationCap, Award } from "lucide-react";
+import { Wallet, GraduationCap, Award, RefreshCw } from "lucide-react";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { useAuthStore } from "@/store/auth.store";
 
 export default function StudentDashboard() {
   // Protect this route
@@ -13,6 +15,49 @@ export default function StudentDashboard() {
     requireAuth: true,
     redirectTo: "/login",
   });
+
+  const refreshWalletBalance = useAuthStore(
+    (state) => state.refreshWalletBalance
+  );
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Function to refresh wallet balance
+  const handleRefreshBalance = async () => {
+    if (isRefreshing) return;
+
+    setIsRefreshing(true);
+    try {
+      await refreshWalletBalance();
+    } catch (error) {
+      console.error("Failed to refresh balance:", error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  // Effect to refresh wallet balance periodically (every 30 seconds)
+  useEffect(() => {
+    // Initial refresh
+    handleRefreshBalance();
+
+    // Set up interval for periodic refreshes
+    const intervalId = setInterval(handleRefreshBalance, 30000);
+
+    // Refresh when tab becomes visible again
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        handleRefreshBalance();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    // Cleanup
+    return () => {
+      clearInterval(intervalId);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, []);
 
   if (!user || !isAuthenticated) {
     return null;
@@ -30,7 +75,19 @@ export default function StudentDashboard() {
               <CardTitle className="text-sm font-medium">
                 Wallet Balance
               </CardTitle>
-              <Wallet className="h-4 w-4 text-muted-foreground" />
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleRefreshBalance}
+                  disabled={isRefreshing}
+                >
+                  <RefreshCw
+                    className={`h-4 w-4 text-muted-foreground ${isRefreshing ? "animate-spin" : ""}`}
+                  />
+                </Button>
+                <Wallet className="h-4 w-4 text-muted-foreground" />
+              </div>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
