@@ -20,6 +20,11 @@ export interface Activity {
   endDate: string;
   rewardCoin: number;
   maxParticipants: number;
+  imageUrl?: string;
+  location?: string;
+  autoApprove?: boolean;
+  organizer?: string;
+  status?: string;
 }
 
 export interface ActivityResponse {

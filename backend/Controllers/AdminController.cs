@@ -14,6 +14,7 @@ using System.IO;
 using ExcelDataReader;
 using Microsoft.EntityFrameworkCore;
 using backend.DTOs;
+using Nethereum.Web3;
 
 namespace backend.Controllers
 {
@@ -373,11 +374,94 @@ namespace backend.Controllers
 
             return builder.ToString().Normalize(System.Text.NormalizationForm.FormC);
         }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("check-transaction/{txHash}")]
+        public async Task<IActionResult> CheckTransactionStatus(
+            string txHash,
+            [FromServices] BlockchainService blockchainService)
+        {
+            try
+            {
+                // Create a Web3 instance
+                var web3 = new Nethereum.Web3.Web3(blockchainService.GetNodeUrl());
+                
+                // Get transaction receipt
+                var receipt = await web3.Eth.Transactions.GetTransactionReceipt.SendRequestAsync(txHash);
+                
+                if (receipt == null)
+                {
+                    return Ok(new
+                    {
+                        TxHash = txHash,
+                        Status = "Pending",
+                        Message = "Transaction is still pending or not found"
+                    });
+                }
+                
+                bool success = receipt.Status.Value == 1;
+                
+                // Get transaction itself for more details
+                var tx = await web3.Eth.Transactions.GetTransactionByHash.SendRequestAsync(txHash);
+                
+                return Ok(new
+                {
+                    TxHash = txHash,
+                    Status = success ? "Success" : "Failed",
+                    BlockNumber = receipt.BlockNumber.Value,
+                    BlockHash = receipt.BlockHash,
+                    GasUsed = receipt.GasUsed.Value.ToString(),
+                    From = tx?.From,
+                    To = tx?.To,
+                    Value = tx != null ? Nethereum.Web3.Web3.Convert.FromWei(tx.Value.Value).ToString() : "0",
+                    Logs = receipt.Logs.Count
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error checking transaction {txHash}");
+                return StatusCode(500, new { 
+                    Message = "Error checking transaction status", 
+                    Error = ex.Message 
+                });
+            }
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("my-wallet")]
+        public async Task<IActionResult> GetAdminWallet([FromServices] BlockchainService blockchainService)
+        {
+            try
+            {
+                var userId = User.FindFirstValue("UserId");
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user == null)
+                    return Unauthorized(new { Message = "Không tìm thấy người dùng admin" });
+
+                var wallet = await _context.Wallets
+                    .FirstOrDefaultAsync(w => w.UserId == userId);
+
+                if (wallet == null)
+                    return NotFound(new { Message = "Không tìm thấy ví admin" });
+
+                // Get VKU Token balance using WalletService
+                var vkuBalance = await _walletService.GetWalletBalance(wallet.Address);
+                
+                // Sync wallet balance to ensure database is up to date
+                await _walletService.SyncWalletBalance(wallet.Address);
+
+                return Ok(new { 
+                    Address = wallet.Address,
+                    VkuBalance = vkuBalance,
+                    TokenSymbol = "VKU",
+                    ContractAddress = blockchainService.VkuCoinAddress
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting admin wallet");
+                return StatusCode(500, new { Message = "Lỗi khi lấy thông tin ví admin", Error = ex.Message });
+            }
+        }
     }
-
-
-
-
-
-
 }

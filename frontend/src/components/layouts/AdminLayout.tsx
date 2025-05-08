@@ -42,11 +42,6 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
       icon: <Users className="w-5 h-5 mr-2" />,
     },
     {
-      href: "/dashboard/admin/manage-users",
-      label: "Manage Users",
-      icon: <Users className="w-5 h-5 mr-2" />,
-    },
-    {
       href: "/dashboard/admin/activities",
       label: "Manage Activities",
       icon: <ListTodo className="w-5 h-5 mr-2" />,

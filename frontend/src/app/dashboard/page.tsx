@@ -21,13 +21,6 @@ export default function DashboardPage() {
       color: "bg-blue-50 dark:bg-blue-900/20",
     },
     {
-      title: "Manage Users",
-      description: "View, edit, and manage student accounts",
-      icon: <Users className="h-8 w-8 text-purple-500" />,
-      href: "/dashboard/admin/manage-users",
-      color: "bg-purple-50 dark:bg-purple-900/20",
-    },
-    {
       title: "Manage Activities",
       description: "View and manage all student activities",
       icon: <ListTodo className="h-8 w-8 text-indigo-500" />,
