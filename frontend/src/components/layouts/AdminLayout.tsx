@@ -9,6 +9,7 @@ import {
   Home,
   Calendar,
   ListTodo,
+  CreditCard,
 } from "lucide-react";
 import { useAuthStore } from "@/store/auth.store";
 
@@ -51,6 +52,11 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
       label: "Add Activity",
       icon: <Calendar className="w-5 h-5 mr-2" />,
     },
+    // {
+    //   href: "/dashboard/admin/transactions",
+    //   label: "Transactions",
+    //   icon: <CreditCard className="w-5 h-5 mr-2" />,
+    // },
   ];
 
   return (

@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/store/auth.store";
 
 export default function StudentDashboard() {
-  // Protect this route
   const { user, isAuthenticated, wallet } = useAuth({
     requireAuth: true,
     redirectTo: "/login",
@@ -21,7 +20,6 @@ export default function StudentDashboard() {
   );
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Function to refresh wallet balance
   const handleRefreshBalance = async () => {
     if (isRefreshing) return;
 
@@ -35,15 +33,11 @@ export default function StudentDashboard() {
     }
   };
 
-  // Effect to refresh wallet balance periodically (every 30 seconds)
   useEffect(() => {
-    // Initial refresh
     handleRefreshBalance();
 
-    // Set up interval for periodic refreshes
     const intervalId = setInterval(handleRefreshBalance, 30000);
 
-    // Refresh when tab becomes visible again
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible") {
         handleRefreshBalance();
@@ -52,7 +46,6 @@ export default function StudentDashboard() {
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
 
-    // Cleanup
     return () => {
       clearInterval(intervalId);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
@@ -122,25 +115,6 @@ export default function StudentDashboard() {
                 className="text-sm text-blue-500 hover:underline mt-2 inline-block"
               >
                 View profile
-              </Link>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Rewards</CardTitle>
-              <Award className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-md font-medium">Available Rewards</div>
-              <p className="text-xs text-muted-foreground">
-                View and claim your rewards
-              </p>
-              <Link
-                href="/student/rewards"
-                className="text-sm text-blue-500 hover:underline mt-2 inline-block"
-              >
-                View rewards
               </Link>
             </CardContent>
           </Card>

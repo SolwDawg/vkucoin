@@ -166,7 +166,6 @@ namespace backend.Services
                     return new TransactionResult(false, $"Ví admin không đủ coin ({adminUser.Wallet.Balance} < {coinAmount})");
 
                 // Skip student role check for now to fix the error
-                // We'll just transfer coins directly instead of checking the student role
 
                 // Perform the blockchain transaction
                 string txHash;

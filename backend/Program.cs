@@ -221,33 +221,26 @@ using (var scope = app.Services.CreateScope())
             }
         }
 
-        // Initialize blockchain service and admin wallet
         try
         {
             var blockchainService = services.GetRequiredService<BlockchainService>();
             var walletService = services.GetRequiredService<WalletService>();
             var dbContext = services.GetRequiredService<ApplicationDbContext>();
 
-            // Try to initialize blockchain connection
             var initialized = await blockchainService.InitializeAdminWallet();
             
             if (initialized)
             {
                 logger.LogInformation("Successfully connected to blockchain and VKUCoin smart contract");
                 
-                // Check if admin has a wallet
                 var adminWallet = await dbContext.Wallets.FirstOrDefaultAsync(w => w.UserId == adminUser.Id);
                 
                 if (adminWallet == null)
                 {
-                    // Get the wallet address
                     var address = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
                     
-                    // Get the actual balance from blockchain first
                     var initialBalance = await walletService.SyncWalletBalance(address);
                     
-                    // Create admin wallet with provided address, private key, and actual balance
-                    // Remove the '0x' prefix from the private key to fit in the database column
                     var privateKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
                     var privateKeyWithoutPrefix = privateKey.StartsWith("0x") ? privateKey.Substring(2) : privateKey;
                     
@@ -266,7 +259,6 @@ using (var scope = app.Services.CreateScope())
                 }
                 else
                 {
-                    // Sync wallet balance from blockchain for existing wallet
                     await walletService.SyncWalletBalance(adminWallet.Address);
                 }
             }
