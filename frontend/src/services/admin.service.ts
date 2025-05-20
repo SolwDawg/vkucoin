@@ -7,6 +7,11 @@ import {
   Student,
   UpdateStudentDto,
   UpdateStudentResponse,
+  Transaction,
+  TransactionHistoryRequest,
+  TransactionHistoryResponse,
+  TransactionDetailsResponse,
+  TransactionSummary,
 } from "@/types/admin";
 
 export const adminService = {
@@ -26,6 +31,10 @@ export const adminService = {
     endDate: string;
     rewardCoin: number;
     maxParticipants: number;
+    imageUrl?: string;
+    location?: string;
+    autoApprove?: boolean;
+    organizer?: string;
   }): Promise<any> {
     return http.post("/admin/Activities", activityData);
   },
@@ -47,6 +56,11 @@ export const adminService = {
       endDate: string;
       rewardCoin: number;
       maxParticipants: number;
+      imageUrl?: string;
+      location?: string;
+      autoApprove?: boolean;
+      organizer?: string;
+      status?: string;
     }
   ): Promise<any> {
     return http.put(`/admin/Activities/${id}`, activityData);
@@ -126,5 +140,53 @@ export const adminService = {
     studentCode: string
   ): Promise<any> {
     return http.post(`/admin/Activities/${activityId}/approve/${studentCode}`);
+  },
+
+  // Confirm a student's participation in an activity
+  async confirmParticipation(
+    activityId: string | number,
+    studentCode: string
+  ): Promise<any> {
+    return http.post(
+      `/admin/Activities/${activityId}/confirm-participation/${studentCode}`
+    );
+  },
+
+  // Get all students
+  async getAllStudents(): Promise<Student[]> {
+    return http.get("/admin/students/all");
+  },
+
+  // Get transaction history with optional filters
+  async getTransactionHistory(
+    filters?: TransactionHistoryRequest
+  ): Promise<TransactionHistoryResponse> {
+    let url = "/admin/transaction-history";
+
+    if (filters) {
+      const params = new URLSearchParams();
+      if (filters.userId) params.append("userId", filters.userId);
+      if (filters.transactionType)
+        params.append("transactionType", filters.transactionType);
+      if (filters.startDate) params.append("startDate", filters.startDate);
+      if (filters.endDate) params.append("endDate", filters.endDate);
+
+      const queryString = params.toString();
+      if (queryString) {
+        url += `?${queryString}`;
+      }
+    }
+
+    return http.get(url);
+  },
+
+  // Get transaction summary
+  async getTransactionSummary(): Promise<TransactionSummary> {
+    return http.get("/admin/transaction-summary");
+  },
+
+  // Get transaction details by ID
+  async getTransactionById(id: number): Promise<TransactionDetailsResponse> {
+    return http.get(`/admin/transactions/${id}`);
   },
 };
