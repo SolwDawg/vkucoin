@@ -15,8 +15,10 @@ namespace backend.Models
         public DateTime DateOfBirth { get; set; }
         public string Role { get; set; }
         public bool IsStudent { get; set; }
+        public int TrainingPoints { get; set; }
         
         [JsonIgnore]
         public virtual Wallet Wallet { get; set; }
+        public ICollection<ActivityRegistration> ActivityRegistrations { get; set; }
     }
 }
