@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
 
 namespace backend.Controllers
 {
@@ -24,17 +25,20 @@ namespace backend.Controllers
         private readonly UserManager<User> _userManager;
         private readonly WalletService _walletService;
         private readonly ILogger<StudentController> _logger;
+        private readonly IConfiguration _configuration;
 
         public StudentController(
             ApplicationDbContext context,
             UserManager<User> userManager,
             WalletService walletService,
+            IConfiguration configuration,
             ILogger<StudentController> logger)
         {
             _context = context;
             _userManager = userManager;
             _walletService = walletService;
             _logger = logger;
+            _configuration = configuration;
         }
 
         // GET: api/student/activities
@@ -245,6 +249,109 @@ namespace backend.Controllers
             {
                 _logger.LogError(ex, "Error syncing wallet balance");
                 return StatusCode(500, new { Message = "Lỗi khi đồng bộ số dư ví", Error = ex.Message });
+            }
+        }
+
+        [Authorize(Roles = "Student")]
+        [HttpPost("convert-to-points")]
+        public async Task<IActionResult> ConvertCoinToPoints(
+            [FromBody] ConvertCoinRequest request,
+            [FromServices] BlockchainService blockchainService)
+        {
+            try
+            {
+                // Get student info using UserId claim
+                var userId = User.FindFirstValue("UserId");
+                if (string.IsNullOrEmpty(userId))
+                {
+                    _logger.LogError("UserId claim not found in token");
+                    return Unauthorized("Invalid token: UserId not found");
+                }
+
+                _logger.LogInformation($"Looking up student with UserId: {userId}");
+                
+                var student = await _userManager.Users
+                    .Include(u => u.Wallet)
+                    .FirstOrDefaultAsync(u => u.Id == userId);
+
+                if (student == null)
+                {
+                    _logger.LogError($"Student not found for UserId: {userId}");
+                    return NotFound("Student not found");
+                }
+
+                _logger.LogInformation($"Found student: {student.FullName} (ID: {student.Id})");
+
+                // Create wallet if it doesn't exist
+                if (student.Wallet == null)
+                {
+                    _logger.LogInformation($"Creating new wallet for student: {student.Id}");
+                    var wallet = await _walletService.CreateWalletWithZeroBalance(userId);
+                    student.Wallet = wallet;
+                    await _context.SaveChangesAsync();
+                    
+                    // Sync the wallet balance after creation
+                    await _walletService.SyncWalletBalance(wallet.Address);
+                }
+
+                // Check if amount is divisible by 10
+                if (request.Amount % 10 != 0)
+                    return BadRequest("Amount must be divisible by 10 (10 coins = 1 training point)");
+
+                // Sync wallet balance before checking
+                var currentBalance = await _walletService.SyncWalletBalance(student.Wallet.Address);
+                
+                // Check balance
+                if (currentBalance < request.Amount)
+                    return BadRequest($"Insufficient coin balance. Current balance: {currentBalance}");
+
+                // Get admin wallet address from configuration
+                var adminAddress = _configuration["Blockchain:AdminAddress"];
+                if (string.IsNullOrEmpty(adminAddress))
+                    return StatusCode(500, "Admin wallet address not configured");
+
+                // Transfer coins to admin wallet
+                var transferResult = await blockchainService.TransferTokens(
+                    student.Wallet.Address,
+                    adminAddress,
+                    request.Amount);
+
+                if (!transferResult.Success)
+                    return StatusCode(500, $"Failed to transfer coins: {transferResult.Message}");
+
+                // Update database
+                student.Wallet.Balance = currentBalance - request.Amount;
+                // Convert coins to points (10 coins = 1 point)
+                student.TrainingPoints += (int)(request.Amount / 10);
+
+                // Add transaction log
+                _context.TransactionLogs.Add(new TransactionLog
+                {
+                    UserId = userId,
+                    Amount = request.Amount,
+                    TransactionType = "CONVERT_TO_POINTS",
+                    Description = $"Converted {request.Amount} coins to {request.Amount / 10} training points",
+                    TransactionHash = transferResult.TransactionHash,
+                    CreatedAt = DateTime.UtcNow
+                });
+
+                await _context.SaveChangesAsync();
+
+                // Final sync to ensure accuracy
+                var finalBalance = await _walletService.SyncWalletBalance(student.Wallet.Address);
+
+                return Ok(new
+                {
+                    Message = $"Successfully converted {request.Amount} coins to {request.Amount / 10} training points",
+                    NewBalance = finalBalance,
+                    NewPoints = student.TrainingPoints,
+                    TransactionHash = transferResult.TransactionHash
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error converting coin to points");
+                return StatusCode(500, "System error while converting coins");
             }
         }
     }

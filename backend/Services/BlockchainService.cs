@@ -22,6 +22,13 @@ namespace backend.Services
         private readonly IConfiguration _configuration;
         private readonly string _vkuCoinAbi = @"[{""inputs"":[],""stateMutability"":""nonpayable"",""type"":""constructor""},{""anonymous"":false,""inputs"":[{""indexed"":true,""internalType"":""address"",""name"":""owner"",""type"":""address""},{""indexed"":true,""internalType"":""address"",""name"":""spender"",""type"":""address""},{""indexed"":false,""internalType"":""uint256"",""name"":""value"",""type"":""uint256""}],""name"":""Approval"",""type"":""event""},{""anonymous"":false,""inputs"":[{""indexed"":true,""internalType"":""address"",""name"":""previousOwner"",""type"":""address""},{""indexed"":true,""internalType"":""address"",""name"":""newOwner"",""type"":""address""}],""name"":""OwnershipTransferred"",""type"":""event""},{""anonymous"":false,""inputs"":[{""indexed"":true,""internalType"":""address"",""name"":""from"",""type"":""address""},{""indexed"":true,""internalType"":""address"",""name"":""to"",""type"":""address""},{""indexed"":false,""internalType"":""uint256"",""name"":""value"",""type"":""uint256""}],""name"":""Transfer"",""type"":""event""},{""inputs"":[{""internalType"":""address"",""name"":""student"",""type"":""address""}],""name"":""addStudent"",""outputs"":[],""stateMutability"":""nonpayable"",""type"":""function""},{""inputs"":[{""internalType"":""address"",""name"":""owner"",""type"":""address""},{""internalType"":""address"",""name"":""spender"",""type"":""address""}],""name"":""allowance"",""outputs"":[{""internalType"":""uint256"",""name"":"""",""type"":""uint256""}],""stateMutability"":""view"",""type"":""function""},{""inputs"":[{""internalType"":""address"",""name"":""spender"",""type"":""address""},{""internalType"":""uint256"",""name"":""amount"",""type"":""uint256""}],""name"":""approve"",""outputs"":[{""internalType"":""bool"",""name"":"""",""type"":""bool""}],""stateMutability"":""nonpayable"",""type"":""function""},{""inputs"":[{""internalType"":""address"",""name"":""account"",""type"":""address""}],""name"":""balanceOf"",""outputs"":[{""internalType"":""uint256"",""name"":"""",""type"":""uint256""}],""stateMutability"":""view"",""type"":""function""},{""inputs"":[],""name"":""decimals"",""outputs"":[{""internalType"":""uint8"",""name"":"""",""type"":""uint8""}],""stateMutability"":""view"",""type"":""function""},{""inputs"":[{""internalType"":""address"",""name"":""spender"",""type"":""address""},{""internalType"":""uint256"",""name"":""subtractedValue"",""type"":""uint256""}],""name"":""decreaseAllowance"",""outputs"":[{""internalType"":""bool"",""name"":"""",""type"":""bool""}],""stateMutability"":""nonpayable"",""type"":""function""},{""inputs"":[{""internalType"":""address"",""name"":""spender"",""type"":""address""},{""internalType"":""uint256"",""name"":""addedValue"",""type"":""uint256""}],""name"":""increaseAllowance"",""outputs"":[{""internalType"":""bool"",""name"":"""",""type"":""bool""}],""stateMutability"":""nonpayable"",""type"":""function""},{""inputs"":[{""internalType"":""address"",""name"":""account"",""type"":""address""}],""name"":""isStudent"",""outputs"":[{""internalType"":""bool"",""name"":"""",""type"":""bool""}],""stateMutability"":""view"",""type"":""function""},{""inputs"":[{""internalType"":""address"",""name"":""recipient"",""type"":""address""},{""internalType"":""uint256"",""name"":""amount"",""type"":""uint256""}],""name"":""mint"",""outputs"":[],""stateMutability"":""nonpayable"",""type"":""function""},{""inputs"":[],""name"":""name"",""outputs"":[{""internalType"":""string"",""name"":"""",""type"":""string""}],""stateMutability"":""view"",""type"":""function""},{""inputs"":[],""name"":""owner"",""outputs"":[{""internalType"":""address"",""name"":"""",""type"":""address""}],""stateMutability"":""view"",""type"":""function""},{""inputs"":[],""name"":""renounceOwnership"",""outputs"":[],""stateMutability"":""nonpayable"",""type"":""function""},{""inputs"":[{""internalType"":""address"",""name"":""student"",""type"":""address""}],""name"":""removeStudent"",""outputs"":[],""stateMutability"":""nonpayable"",""type"":""function""},{""inputs"":[],""name"":""symbol"",""outputs"":[{""internalType"":""string"",""name"":"""",""type"":""string""}],""stateMutability"":""view"",""type"":""function""},{""inputs"":[],""name"":""totalSupply"",""outputs"":[{""internalType"":""uint256"",""name"":"""",""type"":""uint256""}],""stateMutability"":""view"",""type"":""function""},{""inputs"":[{""internalType"":""address"",""name"":""to"",""type"":""address""},{""internalType"":""uint256"",""name"":""amount"",""type"":""uint256""}],""name"":""transfer"",""outputs"":[{""internalType"":""bool"",""name"":"""",""type"":""bool""}],""stateMutability"":""nonpayable"",""type"":""function""},{""inputs"":[{""internalType"":""address"",""name"":""from"",""type"":""address""},{""internalType"":""address"",""name"":""to"",""type"":""address""},{""internalType"":""uint256"",""name"":""amount"",""type"":""uint256""}],""name"":""transferFrom"",""outputs"":[{""internalType"":""bool"",""name"":"""",""type"":""bool""}],""stateMutability"":""nonpayable"",""type"":""function""},{""inputs"":[{""internalType"":""address"",""name"":""newOwner"",""type"":""address""}],""name"":""transferOwnership"",""outputs"":[],""stateMutability"":""nonpayable"",""type"":""function""}]";
 
+        public class TransferResult
+        {
+            public bool Success { get; set; }
+            public string TransactionHash { get; set; }
+            public string Message { get; set; }
+        }
+
         public string VkuCoinAddress { get; private set; }
         public string StudentRewardAddress { get; private set; }
 
@@ -80,6 +87,11 @@ namespace backend.Services
             return txHash;
         }
 
+        public async Task<TransferResult> TransferTokens(string fromAddress, string toAddress, decimal amount)
+        {
+            try
+            {
+                Console.WriteLine($"Attempting to transfer {amount} tokens from {fromAddress} to {toAddress}");
         public async Task<(string txHash, bool success)> TransferTokens(string toAddress, decimal amount)
         {
             try
@@ -93,7 +105,9 @@ namespace backend.Services
                     _vkuCoinContractAddress
                 );
 
+                var transferFunction = contract.GetFunction("transferFrom");
                 var transferFunction = contract.GetFunction("transfer");
+
                 var weiAmount = Web3.Convert.ToWei(amount);
                 
                 Console.WriteLine($"Amount in wei: {weiAmount}");
@@ -103,6 +117,10 @@ namespace backend.Services
                     _adminAccount.Address,
                     new HexBigInteger(900000),  // Increased gas limit
                     new HexBigInteger(0),       // Gas price (0 means use network default)
+
+                    fromAddress,                 // From address
+                    toAddress,                   // To address
+                    weiAmount                    // Amount in wei
                     toAddress,                  // Recipient address
                     weiAmount                   // Amount in wei
                 );
@@ -124,6 +142,12 @@ namespace backend.Services
                 if (receipt == null)
                 {
                     Console.WriteLine($"Transaction {txHash} not mined after 30 seconds");
+                    return new TransferResult 
+                    { 
+                        Success = false,
+                        TransactionHash = txHash,
+                        Message = "Transaction not mined after 30 seconds"
+                    };
                     return (txHash, false);
                 }
                 
@@ -147,6 +171,12 @@ namespace backend.Services
                     }
                 }
                 
+                return new TransferResult
+                {
+                    Success = success,
+                    TransactionHash = txHash,
+                    Message = success ? "Transaction successful" : "Transaction failed"
+                };
                 return (txHash, success);
             }
             catch (Exception ex)
@@ -156,6 +186,12 @@ namespace backend.Services
                 {
                     Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
                 }
+                return new TransferResult
+                {
+                    Success = false,
+                    TransactionHash = null,
+                    Message = ex.Message
+                };
                 throw;
             }
         }

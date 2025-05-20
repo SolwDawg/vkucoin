@@ -1,3 +1,5 @@
+using System;
+
 namespace backend.DTOs
 {
     public class MintTokensDto
@@ -36,5 +38,10 @@ namespace backend.DTOs
     public class AddStudentRoleDto
     {
         public string UserId { get; set; }
+    }
+
+    public class ConvertCoinRequest
+    {
+        public decimal Amount { get; set; }
     }
 } 
