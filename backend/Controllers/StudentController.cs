@@ -469,5 +469,33 @@ namespace backend.Controllers
                 return StatusCode(500, new { Message = "Internal server error" });
             }
         }
+
+        // GET: api/student/Student/{activityId}/registrations
+        [HttpGet("{activityId}/registrations")]
+        public async Task<IActionResult> GetActivityRegistrations(int activityId)
+        {
+            try
+            {
+                // Find the activity
+                var activity = await _context.Activities.FindAsync(activityId);
+                if (activity == null)
+                {
+                    return NotFound(new { Message = "Activity not found" });
+                }
+
+                // Get all registrations for this activity
+                var registrations = await _context.ActivityRegistrations
+                    .Include(r => r.Student)
+                    .Where(r => r.ActivityId == activityId)
+                    .ToListAsync();
+
+                return Ok(registrations);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error getting registrations for activity {activityId}");
+                return StatusCode(500, new { Message = "An error occurred while retrieving registrations" });
+            }
+        }
     }
 }

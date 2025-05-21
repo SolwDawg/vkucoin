@@ -21,6 +21,7 @@ export default function ActivityDetailsPage() {
   const activityId = params.id;
   const [activity, setActivity] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [registrations, setRegistrations] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchActivity = async () => {
@@ -35,10 +36,38 @@ export default function ActivityDetailsPage() {
       }
     };
 
+    const fetchRegistrations = async () => {
+      try {
+        const response = await http.get(`/admin/activities/${activityId}/registrations`);
+        setRegistrations(response);
+      } catch (error) {
+        console.error("Failed to fetch registrations:", error);
+      }
+    };
+
     if (activityId) {
       fetchActivity();
+      fetchRegistrations();
     }
+
+    // Listen for activity slots update events
+    const handleActivityUpdate = (event: any) => {
+      if (event.detail.activityId == activityId) {
+        fetchRegistrations();
+      }
+    };
+
+    window.addEventListener("activity-slots-updated", handleActivityUpdate);
+
+    // Cleanup event listener
+    return () => {
+      window.removeEventListener("activity-slots-updated", handleActivityUpdate);
+    };
   }, [activityId]);
+
+  // Calculate remaining slots
+  const approvedRegistrations = registrations.filter(reg => reg.isApproved).length;
+  const remainingSlots = activity ? activity.maxParticipants - approvedRegistrations : 0;
 
   if (loading) {
     return (
@@ -113,8 +142,8 @@ export default function ActivityDetailsPage() {
                     <p>{activity.rewardCoin} VKU</p>
                   </div>
                   <div>
-                    <h3 className="font-medium text-gray-700 dark:text-gray-300">Max Participants</h3>
-                    <p>{activity.maxParticipants}</p>
+                    <h3 className="font-medium text-gray-700 dark:text-gray-300">Remaining Slots</h3>
+                    <p>{remainingSlots} (of {activity.maxParticipants})</p>
                   </div>
                   <div>
                     <h3 className="font-medium text-gray-700 dark:text-gray-300">Auto Approve</h3>

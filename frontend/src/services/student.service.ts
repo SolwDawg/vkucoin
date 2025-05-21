@@ -66,4 +66,18 @@ export const studentService = {
       throw error;
     }
   },
+
+  async getActivityRegistrations(activityId: number): Promise<any[]> {
+    try {
+      if (!activityId) {
+        throw new Error("Activity ID is required");
+      }
+      
+      const response = await http.get<any[]>(`/student/Student/${activityId}/registrations`);
+      return response;
+    } catch (error) {
+      console.error("Error fetching activity registrations:", error);
+      throw error;
+    }
+  },
 };

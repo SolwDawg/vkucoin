@@ -92,6 +92,14 @@ export default function ActivityRegistrationsPage() {
         `Successfully approved ${registration.student.fullName}'s registration`
       );
 
+      // Broadcast a custom event for activity slot updates
+      const activityUpdateEvent = new CustomEvent("activity-slots-updated", {
+        detail: {
+          activityId: id,
+        },
+      });
+      window.dispatchEvent(activityUpdateEvent);
+
       // Refresh the registrations list
       await fetchRegistrations();
     } catch (err) {
@@ -136,6 +144,14 @@ export default function ActivityRegistrationsPage() {
       });
       window.dispatchEvent(walletUpdateEvent);
 
+      // Also broadcast activity slots update event
+      const activityUpdateEvent = new CustomEvent("activity-slots-updated", {
+        detail: {
+          activityId: id,
+        },
+      });
+      window.dispatchEvent(activityUpdateEvent);
+
       // Refresh the registrations list
       await fetchRegistrations();
     } catch (err) {
@@ -148,6 +164,10 @@ export default function ActivityRegistrationsPage() {
       );
     }
   };
+
+  // Calculate approved registrations and remaining slots
+  const approvedRegistrations = registrations.filter(reg => reg.isApproved).length;
+  const remainingSlots = activity ? activity.maxParticipants - approvedRegistrations : 0;
 
   return (
     <AdminLayout>
@@ -195,7 +215,7 @@ export default function ActivityRegistrationsPage() {
               <CardContent>
                 <div className="flex flex-wrap gap-2">
                   <Badge variant="outline">
-                    {activity.maxParticipants} max participants
+                    Remaining slots: {remainingSlots} (of {activity.maxParticipants})
                   </Badge>
                   <Badge variant="outline">
                     {activity.rewardCoin} coins reward

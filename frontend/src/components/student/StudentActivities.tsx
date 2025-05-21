@@ -160,6 +160,8 @@ const ActivityCard = ({
   onRegistrationSuccess: () => void;
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [approvedRegistrations, setApprovedRegistrations] = useState(0);
+  const [loading, setLoading] = useState(false);
   // Registration mutation
   const [registrationStatus, setRegistrationStatus] = useState<{
     message: string;
@@ -168,6 +170,47 @@ const ActivityCard = ({
     message: "",
     type: "none",
   });
+
+  // Fetch the number of approved registrations
+  useEffect(() => {
+    const fetchRegistrationData = () => {
+      if (isModalOpen) {
+        setLoading(true);
+        studentService
+          .getActivityRegistrations(activity.id)
+          .then((data) => {
+            const approved = data.filter((reg: any) => reg.isApproved).length;
+            setApprovedRegistrations(approved);
+          })
+          .catch((error) => {
+            console.error("Error fetching registrations:", error);
+          })
+          .finally(() => {
+            setLoading(false);
+          });
+      }
+    };
+
+    // Initial fetch
+    fetchRegistrationData();
+
+    // Listen for activity slots update events
+    const handleActivityUpdate = (event: any) => {
+      if (event.detail.activityId == activity.id) {
+        fetchRegistrationData();
+      }
+    };
+
+    window.addEventListener("activity-slots-updated", handleActivityUpdate);
+
+    // Cleanup event listener
+    return () => {
+      window.removeEventListener("activity-slots-updated", handleActivityUpdate);
+    };
+  }, [isModalOpen, activity.id]);
+
+  // Calculate remaining slots
+  const remainingSlots = activity.maxParticipants - approvedRegistrations;
 
   const registerMutation = useMutation({
     mutationFn: (activityId: number) =>
@@ -405,10 +448,10 @@ const ActivityCard = ({
             </div>
 
             <div>
-              <h3 className="font-medium text-gray-700">
-                Maximum Participants
-              </h3>
-              <p className="text-gray-600 mt-1">{activity.maxParticipants}</p>
+              <h3 className="font-medium text-gray-700">Remaining Slots</h3>
+              <p className="text-gray-600 mt-1">
+                {loading ? "Loading..." : `${remainingSlots} / ${activity.maxParticipants}`}
+              </p>
             </div>
           </div>
 

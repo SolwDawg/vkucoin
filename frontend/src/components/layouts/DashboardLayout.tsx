@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { User, LogOut, Home, Wallet, Award, Calendar } from "lucide-react";
+import { User, LogOut, Home, Wallet, Award, Calendar, QrCode } from "lucide-react";
 import { useAuthStore } from "@/store/auth.store";
 
 interface DashboardLayoutProps {
@@ -34,16 +34,11 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       label: "Activities",
       icon: <Calendar className="w-5 h-5 mr-2" />,
     },
-    // {
-    //   href: "/wallet",
-    //   label: "Wallet",
-    //   icon: <Wallet className="w-5 h-5 mr-2" />,
-    // },
-    // {
-    //   href: "/student/rewards",
-    //   label: "Rewards",
-    //   icon: <Award className="w-5 h-5 mr-2" />,
-    // },
+    {
+      href: "/student/scan",
+      label: "Scans",
+      icon: <QrCode className="w-5 h-5 mr-2" />,
+    },
   ];
 
   return (
