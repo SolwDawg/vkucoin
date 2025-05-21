@@ -306,7 +306,7 @@ namespace backend.Controllers
                     return BadRequest($"Insufficient coin balance. Current balance: {currentBalance}");
 
                 // Get admin wallet address from configuration
-                var adminAddress = _configuration["Blockchain:AdminAddress"];
+                var adminAddress = _configuration["Blockchain:VkuCoinAddress"];
                 if (string.IsNullOrEmpty(adminAddress))
                     return StatusCode(500, "Admin wallet address not configured");
 
