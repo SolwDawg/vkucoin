@@ -172,17 +172,21 @@ namespace backend.Services
                 bool txSuccess;
                 try
                 {
-                    (txHash, txSuccess) = await _blockchainService.TransferTokens(
-                        user.Wallet.Address,
-                        coinAmount
+                    var transferResult = await _blockchainService.TransferTokens(
+                        adminUser.Wallet.Address,  // fromAddress
+                        user.Wallet.Address,       // toAddress
+                        coinAmount                 // amount
                     );
                     
-                    _logger.LogInformation($"Transfer transaction submitted with hash: {txHash}, success: {txSuccess}");
+                    _logger.LogInformation($"Transfer transaction submitted with hash: {transferResult.TransactionHash}, success: {transferResult.Success}");
                     
-                    if (!txSuccess)
+                    if (!transferResult.Success)
                     {
-                        return new TransactionResult(false, $"Giao dịch blockchain thất bại, hash: {txHash}");
+                        return new TransactionResult(false, $"Giao dịch blockchain thất bại, hash: {transferResult.TransactionHash}");
                     }
+
+                    txHash = transferResult.TransactionHash;
+                    txSuccess = transferResult.Success;
                 }
                 catch (Exception ex)
                 {

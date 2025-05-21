@@ -50,11 +50,11 @@ namespace backend.Services
             // Assign to both private fields and public properties
             _vkuCoinContractAddress = configuration["Blockchain:VkuCoinAddress"];
             _studentRewardContractAddress = configuration["Blockchain:StudentRewardAddress"];
-            
+
             // Assign to public properties so they can be accessed by other services
             VkuCoinAddress = _vkuCoinContractAddress;
             StudentRewardAddress = _studentRewardContractAddress;
-            
+
             // Validate critical configuration
             if (string.IsNullOrEmpty(VkuCoinAddress))
             {
@@ -87,29 +87,88 @@ namespace backend.Services
             return txHash;
         }
 
-        public async Task<TransferResult> TransferTokens(string fromAddress, string toAddress, decimal amount)
+        public async Task<TransferResult> ApproveTokens(string spenderAddress, decimal amount)
         {
             try
             {
-                Console.WriteLine($"Attempting to transfer {amount} tokens from {fromAddress} to {toAddress}");
-        public async Task<(string txHash, bool success)> TransferTokens(string toAddress, decimal amount)
-        {
-            try
-            {
-                Console.WriteLine($"Attempting to transfer {amount} tokens to {toAddress}");
-                Console.WriteLine($"Contract address: {_vkuCoinContractAddress}");
-                Console.WriteLine($"Admin address: {_adminAccount.Address}");
+                Console.WriteLine($"Approving {amount} tokens for spender {spenderAddress}");
                 
                 var contract = _web3.Eth.GetContract(
                     _vkuCoinAbi,
                     _vkuCoinContractAddress
                 );
 
-                var transferFunction = contract.GetFunction("transferFrom");
-                var transferFunction = contract.GetFunction("transfer");
-
+                var approveFunction = contract.GetFunction("approve");
                 var weiAmount = Web3.Convert.ToWei(amount);
-                
+
+                var txHash = await approveFunction.SendTransactionAsync(
+                    _adminAccount.Address,
+                    new HexBigInteger(900000),
+                    new HexBigInteger(0),
+                    spenderAddress,
+                    weiAmount
+                );
+
+                Console.WriteLine($"Approval transaction submitted with hash: {txHash}");
+
+                // Wait for transaction to be mined
+                var receipt = await _web3.Eth.Transactions.GetTransactionReceipt.SendRequestAsync(txHash);
+                int retryCount = 0;
+
+                while (receipt == null && retryCount < 30)
+                {
+                    await Task.Delay(1000);
+                    receipt = await _web3.Eth.Transactions.GetTransactionReceipt.SendRequestAsync(txHash);
+                    retryCount++;
+                }
+
+                if (receipt == null)
+                {
+                    return new TransferResult
+                    {
+                        Success = false,
+                        TransactionHash = txHash,
+                        Message = "Approval transaction not mined after 30 seconds"
+                    };
+                }
+
+                bool success = receipt.Status.Value == 1;
+                return new TransferResult
+                {
+                    Success = success,
+                    TransactionHash = txHash,
+                    Message = success ? "Approval successful" : "Approval failed"
+                };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error approving tokens: {ex.Message}");
+                return new TransferResult
+                {
+                    Success = false,
+                    TransactionHash = null,
+                    Message = ex.Message
+                };
+            }
+        }
+
+        public async Task<TransferResult> TransferTokens(string fromAddress, string toAddress, decimal amount)
+        {
+            try
+            {
+                Console.WriteLine($"Attempting to transfer {amount} tokens from {fromAddress} to {toAddress}");
+                Console.WriteLine($"Contract address: {_vkuCoinContractAddress}");
+                Console.WriteLine($"Admin address: {_adminAccount.Address}");
+
+                var contract = _web3.Eth.GetContract(
+                    _vkuCoinAbi,
+                    _vkuCoinContractAddress
+                );
+
+                // Use transfer function instead of transferFrom
+                var transferFunction = contract.GetFunction("transfer");
+                var weiAmount = Web3.Convert.ToWei(amount);
+
                 Console.WriteLine($"Amount in wei: {weiAmount}");
 
                 // Use higher gas limit to ensure transaction goes through
@@ -117,12 +176,8 @@ namespace backend.Services
                     _adminAccount.Address,
                     new HexBigInteger(900000),  // Increased gas limit
                     new HexBigInteger(0),       // Gas price (0 means use network default)
-
-                    fromAddress,                 // From address
                     toAddress,                   // To address
                     weiAmount                    // Amount in wei
-                    toAddress,                  // Recipient address
-                    weiAmount                   // Amount in wei
                 );
 
                 Console.WriteLine($"Transaction submitted with hash: {txHash}");
@@ -130,7 +185,7 @@ namespace backend.Services
                 // Wait for transaction to be mined and check receipt
                 var receipt = await _web3.Eth.Transactions.GetTransactionReceipt.SendRequestAsync(txHash);
                 int retryCount = 0;
-                
+
                 while (receipt == null && retryCount < 30) // Wait up to 30 seconds
                 {
                     await Task.Delay(1000);
@@ -138,22 +193,21 @@ namespace backend.Services
                     retryCount++;
                     Console.WriteLine($"Waiting for transaction receipt... Attempt {retryCount}/30");
                 }
-                
+
                 if (receipt == null)
                 {
                     Console.WriteLine($"Transaction {txHash} not mined after 30 seconds");
-                    return new TransferResult 
-                    { 
+                    return new TransferResult
+                    {
                         Success = false,
                         TransactionHash = txHash,
                         Message = "Transaction not mined after 30 seconds"
                     };
-                    return (txHash, false);
                 }
-                
+
                 bool success = receipt.Status.Value == 1;
                 Console.WriteLine($"Transaction {txHash} status: {(success ? "Success" : "Failed")}");
-                
+
                 // If transaction failed, log additional details
                 if (!success)
                 {
@@ -170,14 +224,13 @@ namespace backend.Services
                         Console.WriteLine($"Error checking admin balance: {ex.Message}");
                     }
                 }
-                
+
                 return new TransferResult
                 {
                     Success = success,
                     TransactionHash = txHash,
                     Message = success ? "Transaction successful" : "Transaction failed"
                 };
-                return (txHash, success);
             }
             catch (Exception ex)
             {
@@ -192,7 +245,6 @@ namespace backend.Services
                     TransactionHash = null,
                     Message = ex.Message
                 };
-                throw;
             }
         }
 
@@ -205,10 +257,10 @@ namespace backend.Services
 
         public async Task AddStudentRole(string studentWalletAddress)
         {
-            try 
+            try
             {
                 Console.WriteLine($"Attempting to add student role for address: {studentWalletAddress}");
-                
+
                 var contract = _web3.Eth.GetContract(
                     _vkuCoinAbi,
                     _vkuCoinContractAddress
@@ -218,20 +270,20 @@ namespace backend.Services
 
                 var gasAmount = new HexBigInteger(900000); // Increased gas limit
                 Console.WriteLine($"Sending addStudent transaction with gas limit: {gasAmount}");
-                
+
                 var txHash = await addStudentFunction.SendTransactionAsync(
                     _adminAccount.Address,
                     gasAmount,
                     new HexBigInteger(0),
                     studentWalletAddress
                 );
-                
+
                 Console.WriteLine($"AddStudent transaction submitted with hash: {txHash}");
-                
+
                 // Wait for transaction to be mined
                 var receipt = await _web3.Eth.Transactions.GetTransactionReceipt.SendRequestAsync(txHash);
                 int retryCount = 0;
-                
+
                 while (receipt == null && retryCount < 30) // Wait up to 30 seconds
                 {
                     await Task.Delay(1000);
@@ -239,16 +291,16 @@ namespace backend.Services
                     retryCount++;
                     Console.WriteLine($"Waiting for addStudent transaction receipt... Attempt {retryCount}/30");
                 }
-                
+
                 if (receipt == null)
                 {
                     Console.WriteLine($"AddStudent transaction {txHash} not mined after 30 seconds");
                     throw new Exception("Transaction not mined in time");
                 }
-                
+
                 bool success = receipt.Status.Value == 1;
                 Console.WriteLine($"AddStudent transaction {txHash} status: {(success ? "Success" : "Failed")}");
-                
+
                 if (!success)
                 {
                     Console.WriteLine($"AddStudent transaction failed. Gas used: {receipt.GasUsed}");
@@ -271,14 +323,14 @@ namespace backend.Services
             try
             {
                 Console.WriteLine($"Checking if address is student: {walletAddress}");
-                
+
                 var contract = _web3.Eth.GetContract(
                     _vkuCoinAbi,
                     _vkuCoinContractAddress
                 );
 
                 var isStudentFunction = contract.GetFunction("isStudent");
-                
+
                 // For safety, we'll catch errors and return false instead of failing the transaction
                 try
                 {
@@ -308,7 +360,7 @@ namespace backend.Services
         // We'll keep this method for backward compatibility, but it's not used anymore
         public async Task<string> LoadAbi(string contractName)
         {
-            try 
+            try
             {
                 if (contractName == "VkuCoin")
                 {
@@ -316,7 +368,7 @@ namespace backend.Services
                     Console.WriteLine($"Contract address: {_vkuCoinContractAddress}");
                     return _vkuCoinAbi;
                 }
-                
+
                 throw new NotImplementedException($"ABI for {contractName} is not available");
             }
             catch (Exception ex)
@@ -333,18 +385,18 @@ namespace backend.Services
                 // Check connection to blockchain
                 var blockNumber = await _web3.Eth.Blocks.GetBlockNumber.SendRequestAsync();
                 Console.WriteLine($"Connected to blockchain at block number: {blockNumber.Value}");
-                
+
                 // Set contract addresses for other parts of the application to use
                 VkuCoinAddress = _vkuCoinContractAddress;
                 StudentRewardAddress = _studentRewardContractAddress;
                 Console.WriteLine($"Using VKU Coin address: {VkuCoinAddress}");
-                
+
                 if (string.IsNullOrEmpty(VkuCoinAddress))
                 {
                     Console.WriteLine("VkuCoinAddress is not configured");
                     return false;
                 }
-                
+
                 // Verify contract exists at this address by checking code
                 var code = await _web3.Eth.GetCode.SendRequestAsync(VkuCoinAddress);
                 if (string.IsNullOrEmpty(code) || code == "0x")
@@ -352,28 +404,28 @@ namespace backend.Services
                     Console.WriteLine($"No contract found at address {VkuCoinAddress}. Please verify the contract is deployed.");
                     return false;
                 }
-                
+
                 Console.WriteLine($"Contract code verified at {VkuCoinAddress}");
-                
+
                 // Use hardcoded ABI instead of loading from file
                 var contract = _web3.Eth.GetContract(
                     _vkuCoinAbi,
                     VkuCoinAddress
                 );
-                
+
                 // Call simple methods to verify contract access
                 try
                 {
                     var nameFunction = contract.GetFunction("name");
                     var symbolFunction = contract.GetFunction("symbol");
                     var decimalsFunction = contract.GetFunction("decimals");
-                    
+
                     var tokenName = await nameFunction.CallAsync<string>();
                     var tokenSymbol = await symbolFunction.CallAsync<string>();
                     var tokenDecimals = await decimalsFunction.CallAsync<byte>();
-                    
+
                     Console.WriteLine($"Successfully connected to token: {tokenName} ({tokenSymbol}), decimals: {tokenDecimals}");
-                    
+
                     // Also verify balanceOf function works with admin address for complete testing
                     try
                     {
@@ -386,7 +438,7 @@ namespace backend.Services
                         Console.WriteLine($"Warning: Failed to call balanceOf for admin: {ex.Message}");
                         Console.WriteLine("This might indicate issues with the contract or permissions");
                     }
-                    
+
                     return !string.IsNullOrEmpty(tokenName);
                 }
                 catch (Exception ex)

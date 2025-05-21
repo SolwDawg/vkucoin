@@ -254,28 +254,26 @@ using (var scope = app.Services.CreateScope())
                     
                     await dbContext.Wallets.AddAsync(adminWallet);
                     await dbContext.SaveChangesAsync();
-                    
-                    logger.LogInformation($"Created admin wallet: {adminWallet.Address} with initial balance: {initialBalance}");
+                    logger.LogInformation("Admin wallet created successfully");
                 }
                 else
                 {
-                    await walletService.SyncWalletBalance(adminWallet.Address);
+                    logger.LogInformation("Admin wallet already exists");
                 }
             }
             else
             {
-                logger.LogWarning("Failed to initialize blockchain connection. Please check your configuration.");
+                logger.LogError("Failed to initialize blockchain connection");
             }
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error initializing blockchain service");
+            logger.LogError(ex, "Error during blockchain initialization");
         }
     }
     catch (Exception ex)
     {
-        logger.LogError(ex, "An error occurred while initializing roles and admin user");
-        throw;
+        logger.LogError(ex, "An error occurred while seeding the database");
     }
 }
 
