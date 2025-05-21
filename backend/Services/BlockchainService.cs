@@ -92,6 +92,11 @@ namespace backend.Services
             try
             {
                 Console.WriteLine($"Attempting to transfer {amount} tokens from {fromAddress} to {toAddress}");
+        public async Task<(string txHash, bool success)> TransferTokens(string toAddress, decimal amount)
+        {
+            try
+            {
+                Console.WriteLine($"Attempting to transfer {amount} tokens to {toAddress}");
                 Console.WriteLine($"Contract address: {_vkuCoinContractAddress}");
                 Console.WriteLine($"Admin address: {_adminAccount.Address}");
                 
@@ -101,6 +106,8 @@ namespace backend.Services
                 );
 
                 var transferFunction = contract.GetFunction("transferFrom");
+                var transferFunction = contract.GetFunction("transfer");
+
                 var weiAmount = Web3.Convert.ToWei(amount);
                 
                 Console.WriteLine($"Amount in wei: {weiAmount}");
@@ -110,9 +117,12 @@ namespace backend.Services
                     _adminAccount.Address,
                     new HexBigInteger(900000),  // Increased gas limit
                     new HexBigInteger(0),       // Gas price (0 means use network default)
+
                     fromAddress,                 // From address
                     toAddress,                   // To address
                     weiAmount                    // Amount in wei
+                    toAddress,                  // Recipient address
+                    weiAmount                   // Amount in wei
                 );
 
                 Console.WriteLine($"Transaction submitted with hash: {txHash}");
@@ -138,6 +148,7 @@ namespace backend.Services
                         TransactionHash = txHash,
                         Message = "Transaction not mined after 30 seconds"
                     };
+                    return (txHash, false);
                 }
                 
                 bool success = receipt.Status.Value == 1;
@@ -166,6 +177,7 @@ namespace backend.Services
                     TransactionHash = txHash,
                     Message = success ? "Transaction successful" : "Transaction failed"
                 };
+                return (txHash, success);
             }
             catch (Exception ex)
             {
@@ -180,6 +192,7 @@ namespace backend.Services
                     TransactionHash = null,
                     Message = ex.Message
                 };
+                throw;
             }
         }
 

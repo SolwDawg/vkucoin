@@ -20,6 +20,11 @@ export interface Activity {
   endDate: string;
   rewardCoin: number;
   maxParticipants: number;
+  imageUrl?: string;
+  location?: string;
+  autoApprove?: boolean;
+  organizer?: string;
+  status?: string;
 }
 
 export interface ActivityResponse {
@@ -48,6 +53,8 @@ export interface ActivityRegistration {
   registeredAt: string;
   isApproved: boolean;
   approvedAt: string | null;
+  isParticipationConfirmed: boolean;
+  participationConfirmedAt: string | null;
   evidenceImageUrl: string | null;
 }
 
@@ -83,4 +90,55 @@ export interface UpdateStudentResponse {
     email: string;
     address?: string;
   };
+}
+
+export interface Transaction {
+  id: number;
+  userId: string;
+  userName: string;
+  studentCode: string;
+  amount: number;
+  transactionType: string;
+  description: string;
+  transactionHash: string;
+  createdAt: string;
+}
+
+export interface TransactionHistoryRequest {
+  userId?: string;
+  transactionType?: string;
+  startDate?: string;
+  endDate?: string;
+}
+
+export interface TransactionHistoryResponse {
+  transactions: Transaction[];
+  transactionTypes: string[];
+  totalCount: number;
+}
+
+export interface TransactionDetailsResponse {
+  transaction: Transaction;
+  blockchainDetails: string | null;
+}
+
+export interface TransactionSummary {
+  totalTransactions: number;
+  transactionsByType: {
+    type: string;
+    count: number;
+    totalAmount: number;
+  }[];
+  dailyTransactions: {
+    date: string;
+    count: number;
+    amount: number;
+  }[];
+  topUsers: {
+    userId: string;
+    userName: string;
+    studentCode: string;
+    transactionCount: number;
+    totalAmount: number;
+  }[];
 }

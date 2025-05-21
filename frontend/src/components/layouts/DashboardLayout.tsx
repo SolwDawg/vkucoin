@@ -34,16 +34,16 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       label: "Activities",
       icon: <Calendar className="w-5 h-5 mr-2" />,
     },
-    {
-      href: "/wallet",
-      label: "Wallet",
-      icon: <Wallet className="w-5 h-5 mr-2" />,
-    },
-    {
-      href: "/student/rewards",
-      label: "Rewards",
-      icon: <Award className="w-5 h-5 mr-2" />,
-    },
+    // {
+    //   href: "/wallet",
+    //   label: "Wallet",
+    //   icon: <Wallet className="w-5 h-5 mr-2" />,
+    // },
+    // {
+    //   href: "/student/rewards",
+    //   label: "Rewards",
+    //   icon: <Award className="w-5 h-5 mr-2" />,
+    // },
   ];
 
   return (

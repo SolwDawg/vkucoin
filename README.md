@@ -1,4 +1,3 @@
-
 # VKU Coin
 
 A blockchain-based reward system for VKU (Van Lang University) students built on Ethereum technology. This project includes a custom ERC20 token smart contract, a .NET backend API, and a Next.js frontend application.
