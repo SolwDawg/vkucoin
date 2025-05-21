@@ -107,6 +107,7 @@ builder.Services.AddControllers()
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<WalletService>();
 builder.Services.AddScoped<ExcelService>();
+builder.Services.AddScoped<QRCodeService>();
 
 // Add health checks
 builder.Services.AddHealthChecks()
@@ -138,10 +139,12 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("AllowAll");
 app.UseHttpsRedirection();
+
+// Configure static file serving for QR codes
+app.UseStaticFiles(); // Enables serving files from wwwroot
+
 app.UseAuthentication();
 app.UseAuthorization();
-
-
 
 app.MapControllers();
 app.MapHealthChecks("/health");

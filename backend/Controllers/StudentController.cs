@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace backend.Controllers
 {
@@ -26,19 +27,25 @@ namespace backend.Controllers
         private readonly WalletService _walletService;
         private readonly ILogger<StudentController> _logger;
         private readonly IConfiguration _configuration;
+        private readonly BlockchainService _blockchainService;
+        private readonly QRCodeService _qrCodeService;
 
         public StudentController(
             ApplicationDbContext context,
             UserManager<User> userManager,
             WalletService walletService,
             IConfiguration configuration,
-            ILogger<StudentController> logger)
+            ILogger<StudentController> logger,
+            BlockchainService blockchainService,
+            QRCodeService qrCodeService)
         {
             _context = context;
             _userManager = userManager;
             _walletService = walletService;
             _logger = logger;
             _configuration = configuration;
+            _blockchainService = blockchainService;
+            _qrCodeService = qrCodeService;
         }
 
         // GET: api/student/activities
@@ -352,6 +359,114 @@ namespace backend.Controllers
             {
                 _logger.LogError(ex, "Error converting coin to points");
                 return StatusCode(500, "System error while converting coins");
+            }
+        }
+
+        [HttpPost("scan-qr-code")]
+        [Authorize(Roles = "Student")]
+        public async Task<IActionResult> ScanQRCode([FromBody] ScanQRCodeDto dto)
+        {
+            try
+            {
+                _logger.LogInformation($"Processing QR code scan: {dto.QrCodePayload}");
+                
+                // Parse the QR code payload
+                var qrData = _qrCodeService.ParseQRCodePayload(dto.QrCodePayload);
+                if (qrData == null)
+                {
+                    return BadRequest(new { Message = "Invalid QR code format" });
+                }
+                
+                var (activityId, token, expiration) = qrData.Value;
+                
+                // Find the activity
+                var activity = await _context.Activities.FindAsync(activityId);
+                if (activity == null)
+                {
+                    return NotFound(new { Message = "Activity not found" });
+                }
+                
+                // Validate the token
+                if (activity.QrCodeToken != token)
+                {
+                    return BadRequest(new { Message = "Invalid QR code token" });
+                }
+                
+                // Check if the QR code has expired
+                if (DateTime.UtcNow > activity.QrCodeExpiration)
+                {
+                    return BadRequest(new { Message = "QR code has expired" });
+                }
+                
+                // Get the current user (student)
+                var userId = User.FindFirst("UserId")?.Value;
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized(new { Message = "User not authenticated" });
+                }
+                
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user == null)
+                {
+                    return NotFound(new { Message = "User not found" });
+                }
+                
+                // Check if the user is a student
+                if (user.Role != "Student")
+                {
+                    return BadRequest(new { Message = "Only students can confirm participation" });
+                }
+                
+                // Find the registration
+                var registration = await _context.ActivityRegistrations
+                    .FirstOrDefaultAsync(ar => ar.ActivityId == activityId && ar.StudentId == userId);
+                
+                if (registration == null)
+                {
+                    return BadRequest(new { Message = "You are not registered for this activity" });
+                }
+                
+                if (!registration.IsApproved)
+                {
+                    return BadRequest(new { Message = "Your registration has not been approved yet" });
+                }
+                
+                if (registration.IsParticipationConfirmed)
+                {
+                    return BadRequest(new { Message = "You have already confirmed your participation" });
+                }
+                
+                // Confirm participation
+                registration.IsParticipationConfirmed = true;
+                registration.ParticipationConfirmedAt = DateTime.UtcNow;
+                
+                // Transfer reward coins if configured
+                var result = await _walletService.AddCoinToWallet(
+                    userId,
+                    activity.RewardCoin,
+                    activity.Name
+                );
+                
+                if (!result.Success)
+                {
+                    _logger.LogError($"Failed to transfer reward coins: {result.Message}");
+                    // Continue with participation confirmation but log the error
+                }
+                
+                await _context.SaveChangesAsync();
+                
+                return Ok(new
+                {
+                    Message = "Participation confirmed successfully",
+                    RewardCoins = activity.RewardCoin,
+                    TransactionHash = result?.TransactionHash,
+                    NewBalance = result?.NewBalance
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error processing QR code scan");
+                return StatusCode(500, new { Message = "Internal server error" });
             }
         }
     }

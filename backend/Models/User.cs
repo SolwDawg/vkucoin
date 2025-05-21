@@ -21,4 +21,4 @@ namespace backend.Models
         public virtual Wallet Wallet { get; set; }
         public ICollection<ActivityRegistration> ActivityRegistrations { get; set; }
     }
-}
+}   

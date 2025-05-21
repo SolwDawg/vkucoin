@@ -12,8 +12,8 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250519012256_trainingPoint")]
-    partial class trainingPoint
+    [Migration("20250521182106_AddQrCodeIdentifierToActivity")]
+    partial class AddQrCodeIdentifierToActivity
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -200,6 +200,9 @@ namespace backend.Migrations
 
                     b.Property<string>("Organizer")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("QrCodeIdentifier")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("RewardCoin")

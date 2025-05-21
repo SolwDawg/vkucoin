@@ -45,6 +45,11 @@ namespace backend.Models
         public bool AutoApprove { get; set; } = false;
         public string Status => GetStatus();
 
+        // QR Code properties
+        public string? QrCodeToken { get; set; } // Unique token for QR code
+        public string? QrCodeUrl { get; set; } // URL to the QR code image
+        public DateTime? QrCodeExpiration { get; set; } // Expiration date (same as EndDate)
+
         // Danh sách sinh viên đăng ký
         public ICollection<ActivityRegistration> Registrations { get; set; }
 

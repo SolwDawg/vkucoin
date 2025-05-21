@@ -254,6 +254,13 @@ export const ActivityList = () => {
                         Registrations
                       </Link>
                       <Link
+                        href={`/dashboard/admin/activities/${activity.id}`}
+                        className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 flex items-center"
+                      >
+                        <Eye className="h-4 w-4 mr-1" />
+                        View
+                      </Link>
+                      <Link
                         href={`/dashboard/admin/activities/edit/${activity.id}`}
                         className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 flex items-center"
                       >
