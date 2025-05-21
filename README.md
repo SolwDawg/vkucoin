@@ -76,11 +76,17 @@ If you prefer to set up components manually, or are using a non-Windows system:
    ```bash
    cd smartContract
    npm install
+   ```
+   New Tab
+   ```bash
    npx hardhat node
+   ```
+   Another Tab
+   ```bash
    npx hardhat run scripts/deploy.ts --network localhost
    ```
 
-2. **Backend Setup**
+3. **Backend Setup**
 
    ```bash
    cd backend
@@ -89,7 +95,7 @@ If you prefer to set up components manually, or are using a non-Windows system:
    dotnet run --environment Development --urls=http://localhost:5000
    ```
 
-3. **Frontend Setup**
+4. **Frontend Setup**
    ```bash
    cd frontend
    npm install
