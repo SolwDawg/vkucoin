@@ -61,7 +61,7 @@ export default function ActivityRegistrationsPage() {
       setRegistrations(registrationsData);
     } catch (err) {
       console.error("Error fetching registrations:", err);
-      setError("Failed to load registrations. Please try again.");
+      setError("Không thể tải danh sách đăng ký. Vui lòng thử lại.");
     } finally {
       setIsLoading(false);
     }
@@ -89,14 +89,14 @@ export default function ActivityRegistrationsPage() {
 
       // Show success toast
       toast.success(
-        `Successfully approved ${registration.student.fullName}'s registration`
+        `Đã phê duyệt thành công đăng ký của ${registration.student.fullName}`
       );
 
       // Refresh the registrations list
       await fetchRegistrations();
     } catch (err) {
       console.error("Error approving registration:", err);
-      toast.error("Failed to approve registration. Please try again.");
+      toast.error("Không thể phê duyệt đăng ký. Vui lòng thử lại.");
     } finally {
       // Remove studentCode from loading state
       setApprovingStudents((prev) =>
@@ -123,7 +123,7 @@ export default function ActivityRegistrationsPage() {
 
       // Show success toast
       toast.success(
-        `Successfully confirmed ${registration.student.fullName}'s participation`
+        `Đã xác nhận thành công sự tham gia của ${registration.student.fullName}`
       );
 
       // Broadcast a custom event that wallet balances have changed
@@ -140,7 +140,7 @@ export default function ActivityRegistrationsPage() {
       await fetchRegistrations();
     } catch (err) {
       console.error("Error confirming participation:", err);
-      toast.error("Failed to confirm participation. Please try again.");
+      toast.error("Không thể xác nhận sự tham gia. Vui lòng thử lại.");
     } finally {
       // Remove studentCode from loading state
       setConfirmingStudents((prev) =>
@@ -155,7 +155,7 @@ export default function ActivityRegistrationsPage() {
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="flex flex-col items-center gap-2">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-            <p>Loading registrations...</p>
+            <p>Đang tải danh sách đăng ký...</p>
           </div>
         </div>
       ) : error ? (
@@ -168,7 +168,7 @@ export default function ActivityRegistrationsPage() {
               onClick={() => fetchRegistrations()}
               className="mt-2"
             >
-              Retry
+              Thử lại
             </Button>
           </div>
         </div>
@@ -180,7 +180,7 @@ export default function ActivityRegistrationsPage() {
                 <ArrowLeft className="h-4 w-4" />
               </Button>
             </Link>
-            <h1 className="text-2xl font-bold">Activity Registrations</h1>
+            <h1 className="text-2xl font-bold">Đăng ký hoạt động</h1>
           </div>
 
           {activity && (
@@ -188,21 +188,21 @@ export default function ActivityRegistrationsPage() {
               <CardHeader>
                 <CardTitle>{activity.name}</CardTitle>
                 <CardDescription>
-                  Start: {new Date(activity.startDate).toLocaleDateString()} -
-                  End: {new Date(activity.endDate).toLocaleDateString()}
+                  Bắt đầu: {new Date(activity.startDate).toLocaleDateString()} -
+                  Kết thúc: {new Date(activity.endDate).toLocaleDateString()}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-2">
                   <Badge variant="outline">
-                    {activity.maxParticipants} max participants
+                    {activity.maxParticipants} người tham gia tối đa
                   </Badge>
                   <Badge variant="outline">
-                    {activity.rewardCoin} coins reward
+                    {activity.rewardCoin} xu thưởng
                   </Badge>
                   <Badge>
                     {registrations.length} / {activity.maxParticipants}{" "}
-                    registered
+                    đã đăng ký
                   </Badge>
                 </div>
               </CardContent>
@@ -212,29 +212,29 @@ export default function ActivityRegistrationsPage() {
           {registrations.length === 0 ? (
             <Card>
               <CardContent className="pt-6 text-center text-muted-foreground">
-                No registrations found for this activity.
+                Không tìm thấy đăng ký nào cho hoạt động này.
               </CardContent>
             </Card>
           ) : (
             <Card>
               <CardHeader>
-                <CardTitle>Registered Students</CardTitle>
+                <CardTitle>Sinh viên đã đăng ký</CardTitle>
                 <CardDescription>
-                  {registrations.length} student(s) registered for this activity
+                  {registrations.length} sinh viên đã đăng ký cho hoạt động này
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Student Code</TableHead>
-                      <TableHead>Full Name</TableHead>
-                      <TableHead>Class</TableHead>
-                      <TableHead>Registration Date</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Participation</TableHead>
-                      <TableHead>Evidence</TableHead>
-                      <TableHead>Actions</TableHead>
+                      <TableHead>Mã sinh viên</TableHead>
+                      <TableHead>Họ và tên</TableHead>
+                      <TableHead>Lớp</TableHead>
+                      <TableHead>Ngày đăng ký</TableHead>
+                      <TableHead>Trạng thái</TableHead>
+                      <TableHead>Tham gia</TableHead>
+                      <TableHead>Bằng chứng</TableHead>
+                      <TableHead>Hành động</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -255,14 +255,14 @@ export default function ActivityRegistrationsPage() {
                               className="flex items-center gap-1"
                             >
                               <CheckCircle className="h-3 w-3" />
-                              Approved
+                              Đã phê duyệt
                             </Badge>
                           ) : (
                             <Badge
                               variant="outline"
                               className="flex items-center gap-1"
                             >
-                              Pending
+                              Chờ phê duyệt
                             </Badge>
                           )}
                         </TableCell>
@@ -274,7 +274,7 @@ export default function ActivityRegistrationsPage() {
                                 className="flex items-center gap-1 mb-1"
                               >
                                 <Award className="h-3 w-3" />
-                                Participated
+                                Đã tham gia
                               </Badge>
                               <div className="text-xs text-muted-foreground">
                                 {format(
@@ -290,7 +290,7 @@ export default function ActivityRegistrationsPage() {
                               variant="outline"
                               className="flex items-center gap-1"
                             >
-                              Not Confirmed
+                              Chưa xác nhận
                             </Badge>
                           )}
                         </TableCell>
@@ -301,11 +301,11 @@ export default function ActivityRegistrationsPage() {
                               target="_blank"
                               className="text-blue-500 hover:underline"
                             >
-                              View evidence
+                              Xem bằng chứng
                             </Link>
                           ) : (
                             <span className="text-muted-foreground">
-                              No evidence
+                              Không có bằng chứng
                             </span>
                           )}
                         </TableCell>
@@ -326,12 +326,12 @@ export default function ActivityRegistrationsPage() {
                                 ) ? (
                                   <>
                                     <Loader2 className="h-3 w-3 animate-spin" />
-                                    Approving...
+                                    Đang phê duyệt...
                                   </>
                                 ) : (
                                   <>
                                     <CheckCircle className="h-3 w-3" />
-                                    Approve
+                                    Phê duyệt
                                   </>
                                 )}
                               </Button>
@@ -355,12 +355,12 @@ export default function ActivityRegistrationsPage() {
                                   ) ? (
                                     <>
                                       <Loader2 className="h-3 w-3 animate-spin" />
-                                      Confirming...
+                                      Đang xác nhận...
                                     </>
                                   ) : (
                                     <>
                                       <Award className="h-3 w-3" />
-                                      Confirm Participation
+                                      Xác nhận tham gia
                                     </>
                                   )}
                                 </Button>

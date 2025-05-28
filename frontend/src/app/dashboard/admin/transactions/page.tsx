@@ -19,7 +19,7 @@ export default function TransactionsPage() {
     <AdminLayout>
       <div className="container mx-auto py-4">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
-          Transaction Management
+          Quản lý giao dịch
         </h1>
 
         <div className="mb-6">
@@ -33,7 +33,7 @@ export default function TransactionsPage() {
                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300"
                 }`}
               >
-                Transaction Summary
+                Tóm tắt giao dịch
               </button>
               <button
                 onClick={() => setActiveTab("history")}
@@ -43,7 +43,7 @@ export default function TransactionsPage() {
                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300"
                 }`}
               >
-                Transaction History
+                Lịch sử giao dịch
               </button>
             </nav>
           </div>

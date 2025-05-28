@@ -26,10 +26,10 @@ interface ActivityFormProps {
 
 // Status options for the dropdown
 const STATUS_OPTIONS = [
-  { value: "Active", label: "Active" },
-  { value: "Upcoming", label: "Upcoming" },
-  { value: "Completed", label: "Completed" },
-  { value: "Cancelled", label: "Cancelled" },
+  { value: "Active", label: "Đang hoạt động" },
+  { value: "Upcoming", label: "Sắp diễn ra" },
+  { value: "Completed", label: "Đã hoàn thành" },
+  { value: "Cancelled", label: "Đã hủy" },
 ];
 
 export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
@@ -80,7 +80,7 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
           setError(
             err instanceof Error
               ? err.message
-              : "An error occurred while fetching activity details"
+              : "Đã xảy ra lỗi khi tải thông tin hoạt động"
           );
         } finally {
           setIsFetching(false);
@@ -111,52 +111,52 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
 
   const validateForm = (): boolean => {
     if (!activity.name.trim()) {
-      setError("Activity name is required");
+      setError("Tên hoạt động là bắt buộc");
       return false;
     }
 
     if (!activity.description.trim()) {
-      setError("Description is required");
+      setError("Mô tả là bắt buộc");
       return false;
     }
 
     if (!activity.startDate) {
-      setError("Start date is required");
+      setError("Ngày bắt đầu là bắt buộc");
       return false;
     }
 
     if (!activity.endDate) {
-      setError("End date is required");
+      setError("Ngày kết thúc là bắt buộc");
       return false;
     }
 
     if (new Date(activity.startDate) >= new Date(activity.endDate)) {
-      setError("End date must be after start date");
+      setError("Ngày kết thúc phải sau ngày bắt đầu");
       return false;
     }
 
     if (activity.rewardCoin <= 0) {
-      setError("Reward coin must be greater than 0");
+      setError("Số xu thưởng phải lớn hơn 0");
       return false;
     }
 
     if (activity.maxParticipants <= 0) {
-      setError("Maximum participants must be greater than 0");
+      setError("Số người tham gia tối đa phải lớn hơn 0");
       return false;
     }
 
     if (!activity.location || !activity.location.trim()) {
-      setError("Location is required");
+      setError("Địa điểm là bắt buộc");
       return false;
     }
 
     if (!activity.organizer || !activity.organizer.trim()) {
-      setError("Organizer is required");
+      setError("Người tổ chức là bắt buộc");
       return false;
     }
 
     if (!activity.status) {
-      setError("Status is required");
+      setError("Trạng thái là bắt buộc");
       return false;
     }
 
@@ -186,7 +186,7 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
 
       if (mode === "create") {
         response = await adminService.createActivity(formattedActivity);
-        setSuccess("Activity created successfully!");
+        setSuccess("Hoạt động đã được tạo thành công!");
 
         // Reset form after creation
         setActivity({
@@ -204,13 +204,13 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
         });
       } else {
         if (!activityId) {
-          throw new Error("Activity ID is required for updating");
+          throw new Error("Cần có ID hoạt động để cập nhật");
         }
         response = await adminService.updateActivity(
           activityId,
           formattedActivity
         );
-        setSuccess("Activity updated successfully!");
+        setSuccess("Hoạt động đã được cập nhật thành công!");
 
         // Navigate back to activities list after a short delay
         setTimeout(() => {
@@ -221,7 +221,7 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
       setError(
         err instanceof Error
           ? err.message
-          : `An error occurred while ${mode === "create" ? "creating" : "updating"} the activity`
+          : `Đã xảy ra lỗi khi ${mode === "create" ? "tạo" : "cập nhật"} hoạt động`
       );
     } finally {
       setIsLoading(false);
@@ -253,7 +253,7 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
             ></path>
           </svg>
           <span className="text-lg font-medium text-gray-700 dark:text-gray-300">
-            Loading activity details...
+            Đang tải thông tin hoạt động...
           </span>
         </div>
       </div>
@@ -264,7 +264,7 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
     <div className="w-full max-w-4xl mx-auto">
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 border border-gray-200 dark:border-gray-700">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-          {mode === "create" ? "Create New Activity" : "Edit Activity"}
+          {mode === "create" ? "Tạo hoạt động mới" : "Chỉnh sửa hoạt động"}
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -287,7 +287,7 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
               htmlFor="name"
               className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
             >
-              Activity Name
+              Tên hoạt động
             </label>
             <input
               id="name"
@@ -296,7 +296,7 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
               value={activity.name}
               onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder="Enter activity name"
+              placeholder="Nhập tên hoạt động"
               required
             />
           </div>
@@ -306,7 +306,7 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
               htmlFor="description"
               className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
             >
-              Description
+              Mô tả
             </label>
             <textarea
               id="description"
@@ -315,7 +315,7 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
               value={activity.description}
               onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder="Enter activity description"
+              placeholder="Nhập mô tả hoạt động"
               required
             ></textarea>
           </div>
@@ -328,7 +328,7 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
               >
                 <div className="flex items-center">
                   <Calendar className="h-4 w-4 mr-1.5" />
-                  <span>Start Date & Time</span>
+                  <span>Ngày & Giờ bắt đầu</span>
                 </div>
               </label>
               <input
@@ -349,7 +349,7 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
               >
                 <div className="flex items-center">
                   <Clock className="h-4 w-4 mr-1.5" />
-                  <span>End Date & Time</span>
+                  <span>Ngày & Giờ kết thúc</span>
                 </div>
               </label>
               <input
@@ -372,7 +372,7 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
               >
                 <div className="flex items-center">
                   <Coins className="h-4 w-4 mr-1.5" />
-                  <span>Reward Coins</span>
+                  <span>Số xu thưởng</span>
                 </div>
               </label>
               <input
@@ -394,7 +394,7 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
               >
                 <div className="flex items-center">
                   <Users className="h-4 w-4 mr-1.5" />
-                  <span>Max Participants</span>
+                  <span>Số người tham gia tối đa</span>
                 </div>
               </label>
               <input
@@ -417,7 +417,7 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
             >
               <div className="flex items-center">
                 <Image className="h-4 w-4 mr-1.5" />
-                <span>Image URL</span>
+                <span>URL hình ảnh</span>
               </div>
             </label>
             <input
@@ -427,7 +427,7 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
               value={activity.imageUrl || ""}
               onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder="Enter image URL (optional)"
+              placeholder="Nhập URL hình ảnh (tùy chọn)"
             />
           </div>
 
@@ -438,7 +438,7 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
             >
               <div className="flex items-center">
                 <MapPin className="h-4 w-4 mr-1.5" />
-                <span>Location</span>
+                <span>Địa điểm</span>
               </div>
             </label>
             <input
@@ -448,7 +448,7 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
               value={activity.location || ""}
               onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder="Enter activity location"
+              placeholder="Nhập địa điểm hoạt động"
               required
             />
           </div>
@@ -460,7 +460,7 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
             >
               <div className="flex items-center">
                 <User className="h-4 w-4 mr-1.5" />
-                <span>Organizer</span>
+                <span>Người tổ chức</span>
               </div>
             </label>
             <input
@@ -470,7 +470,7 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
               value={activity.organizer || ""}
               onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder="Enter organizer name"
+              placeholder="Nhập tên người tổ chức"
               required
             />
           </div>
@@ -482,7 +482,7 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
             >
               <div className="flex items-center">
                 <Info className="h-4 w-4 mr-1.5" />
-                <span>Status</span>
+                <span>Trạng thái</span>
               </div>
             </label>
             <select
@@ -494,7 +494,7 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
               required
             >
               <option value="" disabled>
-                Select a status
+                Chọn trạng thái
               </option>
               {STATUS_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -519,7 +519,7 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
             >
               <div className="flex items-center">
                 <Check className="h-4 w-4 mr-1.5" />
-                <span>Auto-approve registrations</span>
+                <span>Tự động phê duyệt đăng ký</span>
               </div>
             </label>
           </div>
@@ -530,7 +530,7 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
               onClick={() => router.push("/dashboard/admin/activities")}
               className="px-4 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg flex-1"
             >
-              Cancel
+              Hủy
             </button>
             <button
               type="submit"
@@ -561,12 +561,12 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     ></path>
                   </svg>
-                  Saving...
+                  Đang lưu...
                 </>
               ) : (
                 <>
                   <Save className="h-5 w-5 mr-1.5" />
-                  {mode === "create" ? "Create Activity" : "Save Changes"}
+                  {mode === "create" ? "Tạo hoạt động" : "Lưu thay đổi"}
                 </>
               )}
             </button>

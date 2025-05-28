@@ -47,12 +47,12 @@ export const ImportUsersForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file) {
-      setError("Please select a file");
+      setError("Vui lòng chọn một file");
       return;
     }
 
     if (![".xlsx", ".xls"].some((ext) => file.name.endsWith(ext))) {
-      setError("Only Excel files (.xlsx, .xls) are allowed");
+      setError("Chỉ cho phép file Excel (.xlsx, .xls)");
       return;
     }
 
@@ -64,7 +64,7 @@ export const ImportUsersForm = () => {
       setResults(response);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "An error occurred during import"
+        err instanceof Error ? err.message : "Đã xảy ra lỗi trong quá trình nhập"
       );
     } finally {
       setIsLoading(false);
@@ -98,7 +98,7 @@ export const ImportUsersForm = () => {
     <div className="w-full max-w-4xl mx-auto">
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 border border-gray-200 dark:border-gray-700">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-          Import Users
+          Nhập người dùng
         </h2>
 
         {!results ? (
@@ -128,10 +128,10 @@ export const ImportUsersForm = () => {
               <div className="space-y-2">
                 <Upload className="h-12 w-12 text-gray-400 mx-auto" />
                 <div className="text-lg font-medium text-gray-700 dark:text-gray-300">
-                  {file ? file.name : "Drop Excel file here or click to upload"}
+                  {file ? file.name : "Thả file Excel vào đây hoặc nhấp để tải lên"}
                 </div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Excel files only (.xlsx, .xls)
+                  Chỉ file Excel (.xlsx, .xls)
                 </p>
               </div>
             </div>
@@ -143,7 +143,7 @@ export const ImportUsersForm = () => {
                 disabled={isLoading}
                 className="py-2.5 px-4 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-700"
               >
-                Reset
+                Đặt lại
               </button>
 
               <button
@@ -177,12 +177,12 @@ export const ImportUsersForm = () => {
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                       ></path>
                     </svg>
-                    Importing...
+                    Đang nhập...
                   </>
                 ) : (
                   <>
                     <FileText className="h-5 w-5 mr-2" />
-                    Import Users
+                    Nhập người dùng
                   </>
                 )}
               </button>
@@ -196,7 +196,7 @@ export const ImportUsersForm = () => {
                 <p>{results.message}</p>
               </div>
               <div className="text-sm">
-                {getResultStats().success}/{getResultStats().total} successful
+                {getResultStats().success}/{getResultStats().total} thành công
               </div>
             </div>
 
@@ -206,19 +206,19 @@ export const ImportUsersForm = () => {
                   <thead className="bg-gray-50 dark:bg-gray-800">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        Student Code
+                        Mã sinh viên
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        Full Name
+                        Họ và tên
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         Email
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        Password
+                        Mật khẩu
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        Status
+                        Trạng thái
                       </th>
                     </tr>
                   </thead>
@@ -250,7 +250,7 @@ export const ImportUsersForm = () => {
                               <>
                                 <CheckCircle className="h-4 w-4 text-green-500 mr-1.5" />
                                 <span className="text-sm text-green-600 dark:text-green-400">
-                                  Success
+                                  Thành công
                                 </span>
                               </>
                             ) : (
@@ -275,7 +275,7 @@ export const ImportUsersForm = () => {
                 onClick={resetForm}
                 className="py-2.5 px-4 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-medium flex items-center justify-center transition-colors"
               >
-                Import More Users
+                Nhập thêm người dùng
               </button>
             </div>
           </div>

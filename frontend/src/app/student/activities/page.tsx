@@ -6,7 +6,7 @@ import StudentActivities from "@/components/student/StudentActivities";
 export default function ActivitiesPage() {
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Student Activities</h1>
+      <h1 className="text-3xl font-bold mb-8">Hoạt động sinh viên</h1>
 
       <Suspense
         fallback={

@@ -22,24 +22,24 @@ export default function StudentRewards() {
   const rewards = [
     {
       id: 1,
-      title: "Class Attendance",
-      description: "Complete 10 consecutive attendance days",
+      title: "Điểm danh lớp học",
+      description: "Hoàn thành 10 ngày điểm danh liên tiếp",
       tokenAmount: 50,
       isCompleted: true,
       isClaimed: false,
     },
     {
       id: 2,
-      title: "Assignment Completion",
-      description: "Submit all assignments on time this semester",
+      title: "Hoàn thành bài tập",
+      description: "Nộp tất cả bài tập đúng hạn trong học kỳ này",
       tokenAmount: 100,
       isCompleted: false,
       isClaimed: false,
     },
     {
       id: 3,
-      title: "Academic Excellence",
-      description: "Achieve a GPA of 3.5 or higher",
+      title: "Xuất sắc học tập",
+      description: "Đạt GPA 3.5 trở lên",
       tokenAmount: 200,
       isCompleted: false,
       isClaimed: false,
@@ -50,13 +50,13 @@ export default function StudentRewards() {
     <DashboardLayout>
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Student Rewards</h1>
+          <h1 className="text-2xl font-bold">Phần thưởng sinh viên</h1>
           <Link
             href="/student"
             className="flex items-center text-sm text-blue-500 hover:underline"
           >
             <ChevronLeft className="h-4 w-4 mr-1" />
-            Back to Dashboard
+            Quay lại bảng điều khiển
           </Link>
         </div>
 
@@ -83,11 +83,11 @@ export default function StudentRewards() {
                     {reward.tokenAmount} VKU
                   </span>
                   {reward.isCompleted && !reward.isClaimed ? (
-                    <Button size="sm">Claim Reward</Button>
+                    <Button size="sm">Nhận thưởng</Button>
                   ) : reward.isCompleted && reward.isClaimed ? (
-                    <span className="text-sm text-green-500">Claimed</span>
+                    <span className="text-sm text-green-500">Đã nhận</span>
                   ) : (
-                    <span className="text-sm text-gray-400">Not completed</span>
+                    <span className="text-sm text-gray-400">Chưa hoàn thành</span>
                   )}
                 </div>
               </CardContent>

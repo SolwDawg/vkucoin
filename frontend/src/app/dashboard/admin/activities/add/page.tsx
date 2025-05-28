@@ -15,12 +15,12 @@ export default function AddActivityPage() {
     <AdminLayout>
       <div className="container mx-auto py-4">
         <h1 className="text-3xl font-bold mb-8 text-gray-900 dark:text-white">
-          Add Activity
+          Thêm hoạt động
         </h1>
 
         <div className="mb-8">
           <p className="text-gray-600 dark:text-gray-400">
-            Create a new activity for students to participate in and earn coins.
+            Tạo hoạt động mới cho sinh viên tham gia và kiếm xu.
           </p>
         </div>
 

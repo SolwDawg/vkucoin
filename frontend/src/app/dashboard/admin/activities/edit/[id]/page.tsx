@@ -26,12 +26,12 @@ export default function EditActivityPage({ params }: EditActivityPageProps) {
     <AdminLayout>
       <div className="container mx-auto py-4">
         <h1 className="text-3xl font-bold mb-8 text-gray-900 dark:text-white">
-          Edit Activity
+          Chỉnh sửa hoạt động
         </h1>
 
         <div className="mb-8">
           <p className="text-gray-600 dark:text-gray-400">
-            Update the details of this activity.
+            Cập nhật thông tin chi tiết của hoạt động này.
           </p>
         </div>
 
