@@ -46,7 +46,7 @@ export default function StudentsPage() {
       setStudents(studentsData);
     } catch (err) {
       console.error("Error fetching students:", err);
-      setError("Failed to load students. Please try again.");
+      setError("Không thể tải danh sách sinh viên. Vui lòng thử lại.");
     } finally {
       setIsLoading(false);
     }
@@ -62,7 +62,7 @@ export default function StudentsPage() {
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="flex flex-col items-center gap-2">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-            <p>Loading students...</p>
+            <p>Đang tải sinh viên...</p>
           </div>
         </div>
       ) : error ? (
@@ -75,40 +75,40 @@ export default function StudentsPage() {
               onClick={() => fetchStudents()}
               className="mt-2"
             >
-              Retry
+              Thử lại
             </Button>
           </div>
         </div>
       ) : (
         <div className="container mx-auto py-6 space-y-6">
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold">All Students</h1>
+            <h1 className="text-2xl font-bold">Tất cả sinh viên</h1>
           </div>
 
           {students.length === 0 ? (
             <Card>
               <CardContent className="pt-6 text-center text-muted-foreground">
-                No students found.
+                Không tìm thấy sinh viên nào.
               </CardContent>
             </Card>
           ) : (
             <Card>
               <CardHeader>
-                <CardTitle>Student List</CardTitle>
+                <CardTitle>Danh sách sinh viên</CardTitle>
                 <CardDescription>
-                  {students.length} student(s) in total
+                  Tổng số {students.length} sinh viên
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Student Code</TableHead>
-                      <TableHead>Full Name</TableHead>
-                      <TableHead>Class</TableHead>
+                      <TableHead>Mã sinh viên</TableHead>
+                      <TableHead>Họ và tên</TableHead>
+                      <TableHead>Lớp</TableHead>
                       <TableHead>Email</TableHead>
-                      <TableHead>Date of Birth</TableHead>
-                      <TableHead>Wallet</TableHead>
+                      <TableHead>Ngày sinh</TableHead>
+                      <TableHead>Ví</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -122,18 +122,18 @@ export default function StudentsPage() {
                           {student.class ? (
                             <Badge variant="outline">{student.class}</Badge>
                           ) : (
-                            <span className="text-muted-foreground">Not assigned</span>
+                            <span className="text-muted-foreground">Chưa phân công</span>
                           )}
                         </TableCell>
                         <TableCell>{student.email}</TableCell>
                         <TableCell>
-                          {format(new Date(student.dateOfBirth), "PPP")}
+                          {format(new Date(student.dateOfBirth), "dd/MM/yyyy")}
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <Badge variant="outline" className="flex items-center gap-1">
                               <Coins className="h-3 w-3" />
-                              {student.walletBalance} coins
+                              {student.walletBalance} VKU
                             </Badge>
                             {student.walletAddress && (
                               <span className="text-xs text-muted-foreground">

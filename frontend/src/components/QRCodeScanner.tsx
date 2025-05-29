@@ -52,7 +52,7 @@ export default function QRCodeScanner({ onSuccess, onError }: QRCodeScannerProps
         qrCodePayload: decodedText
       });
       
-      toast.success("QR Code verified successfully!");
+      toast.success("Mã QR đã được xác minh thành công!");
       
       if (onSuccess) {
         onSuccess(response);
@@ -61,7 +61,7 @@ export default function QRCodeScanner({ onSuccess, onError }: QRCodeScannerProps
       console.error("Error verifying QR code:", error);
       const errorMessage = error instanceof Error 
         ? error.message 
-        : "Failed to verify QR code";
+        : "Không thể xác minh mã QR";
       
       toast.error(errorMessage);
       
@@ -90,11 +90,11 @@ export default function QRCodeScanner({ onSuccess, onError }: QRCodeScannerProps
       <div className="flex flex-col items-center gap-4">
         {!isScanning ? (
           <Button onClick={startScanner} className="w-full">
-            Start QR Code Scanner
+            Bắt đầu quét mã QR
           </Button>
         ) : (
           <Button onClick={stopScanner} variant="outline" className="w-full">
-            Stop Scanner
+            Dừng quét
           </Button>
         )}
 
@@ -102,7 +102,7 @@ export default function QRCodeScanner({ onSuccess, onError }: QRCodeScannerProps
 
         {scanResult && (
           <div className="mt-4 p-4 border rounded bg-gray-50 dark:bg-gray-800 w-full">
-            <h3 className="font-medium mb-2">Scan Result:</h3>
+            <h3 className="font-medium mb-2">Kết quả quét:</h3>
             <p className="text-sm break-all">{scanResult}</p>
           </div>
         )}

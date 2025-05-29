@@ -4,6 +4,7 @@ import {
   StudentProfile,
   StudentActivitiesResponse,
   RegistrationResponse,
+  ConvertCoinResponse,
 } from "@/types/student";
 import { http } from "@/lib/http-client";
 import { useAuthStore } from "@/store/auth.store";
@@ -77,6 +78,28 @@ export const studentService = {
       return response;
     } catch (error) {
       console.error("Error fetching activity registrations:", error);
+      throw error;
+    }
+  },
+
+  async convertCoinsToPoints(amount: number): Promise<ConvertCoinResponse> {
+    try {
+      // Validate amount
+      if (!amount || amount <= 0 || amount % 10 !== 0) {
+        throw new Error("Amount must be a positive number divisible by 10");
+      }
+
+      console.log(`Converting ${amount} coins to points`);
+      
+      const response = await http.post<ConvertCoinResponse>(
+        '/student/Student/convert-to-points', 
+        { amount }
+      );
+      
+      console.log("Conversion response:", response);
+      return response;
+    } catch (error) {
+      console.error("Error converting coins to points:", error);
       throw error;
     }
   },

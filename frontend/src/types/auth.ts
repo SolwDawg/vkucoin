@@ -28,6 +28,7 @@ export interface LoginResponse {
     dateOfBirth: string;
     role: string;
     isStudent: boolean;
+    trainingPoints?: number;
   };
   wallet: {
     id: number;

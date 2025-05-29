@@ -36,11 +36,18 @@ export interface StudentActivity {
   isRegistered?: boolean;
 }
 
-export type StudentActivitiesResponse = StudentActivity[];
+export interface StudentActivitiesResponse {
+  activities: StudentActivity[];
+}
 
 export interface RegistrationResponse {
-  success: boolean;
   message: string;
-  registrationId?: number;
-  status?: string;
+  registration: any;
+}
+
+export interface ConvertCoinResponse {
+  message: string;
+  newBalance: number;
+  newPoints: number;
+  transactionHash: string;
 }

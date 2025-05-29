@@ -11,6 +11,8 @@ interface AuthStore extends AuthState {
   setAuth: (data: LoginResponse) => void;
   initializeFromStorage: () => void;
   refreshWalletBalance: () => Promise<void>;
+  updateWalletBalance: (newBalance: number) => void;
+  updateUser: (updatedUser: AuthState['user']) => void;
 }
 
 // Helper to safely parse localStorage items
@@ -118,5 +120,29 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     } catch (error) {
       console.error("Failed to refresh wallet balance:", error);
     }
+  },
+
+  updateWalletBalance: (newBalance: number) => {
+    const { wallet } = get();
+    if (!wallet) return;
+
+    // Create updated wallet object
+    const updatedWallet = { ...wallet, balance: newBalance };
+
+    // Update localStorage
+    localStorage.setItem("wallet", JSON.stringify(updatedWallet));
+
+    // Update store
+    set({ wallet: updatedWallet });
+  },
+
+  updateUser: (updatedUser: AuthState['user']) => {
+    if (!updatedUser) return;
+
+    // Update localStorage
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+
+    // Update store
+    set({ user: updatedUser });
   },
 }));

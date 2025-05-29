@@ -18,7 +18,7 @@ export const LoginForm = () => {
   const validateEmail = (email: string): boolean => {
     setEmailError("");
     if (!email.endsWith("@vku.udn.vn")) {
-      setEmailError("Email must end with @vku.udn.vn");
+      setEmailError("Email phải kết thúc bằng @vku.udn.vn");
       return false;
     }
     return true;
@@ -43,7 +43,7 @@ export const LoginForm = () => {
       // No need to redirect here - the hook handles it
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "An error occurred during login"
+        err instanceof Error ? err.message : "Đã xảy ra lỗi trong quá trình đăng nhập"
       );
     } finally {
       setIsLoading(false);
@@ -54,7 +54,7 @@ export const LoginForm = () => {
     <div className="w-full max-w-md mx-auto">
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 border border-gray-200 dark:border-gray-700">
         <h2 className="text-2xl font-bold text-center text-gray-900 dark:text-white mb-6">
-          Sign in to VKU Coin
+          Đăng nhập VKU Coin
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -89,7 +89,7 @@ export const LoginForm = () => {
                     ? "border-red-300 dark:border-red-600 focus:ring-red-500 focus:border-red-500"
                     : "border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500"
                 } rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 focus:outline-none focus:ring-2`}
-                placeholder="your.email@vku.udn.vn"
+                placeholder="youremail@vku.udn.vn"
                 required
               />
             </div>
@@ -105,7 +105,7 @@ export const LoginForm = () => {
               htmlFor="password"
               className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
             >
-              Password
+              Mật khẩu
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -154,12 +154,12 @@ export const LoginForm = () => {
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                   ></path>
                 </svg>
-                Signing in...
+                Đang đăng nhập...
               </>
             ) : (
               <>
                 <LogIn className="h-5 w-5 mr-2" />
-                Sign in
+                Đăng nhập
               </>
             )}
           </button>

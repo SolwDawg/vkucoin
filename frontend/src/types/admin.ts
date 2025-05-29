@@ -13,18 +13,18 @@ export interface ImportUsersResponse {
 }
 
 export interface Activity {
-  id?: string;
+  id: number;
   name: string;
   description: string;
   startDate: string;
   endDate: string;
-  rewardCoin: number;
+  location: string;
   maxParticipants: number;
-  imageUrl?: string;
-  location?: string;
-  autoApprove?: boolean;
-  organizer?: string;
-  status?: string;
+  rewardCoin: number;
+  autoApprove: boolean;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface ActivityResponse {
@@ -141,4 +141,19 @@ export interface TransactionSummary {
     transactionCount: number;
     totalAmount: number;
   }[];
+}
+
+export interface Registration {
+  id: number;
+  student: {
+    id: number;
+    studentCode: string;
+    fullName: string;
+    class: string;
+  };
+  registeredAt: string;
+  isApproved: boolean;
+  isParticipationConfirmed: boolean;
+  participationConfirmedAt: string | null;
+  evidenceImageUrl: string | null;
 }

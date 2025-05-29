@@ -15,17 +15,16 @@ export default function ImportUsersPage() {
     <AdminLayout>
       <div className="container mx-auto py-4">
         <h1 className="text-3xl font-bold mb-8 text-gray-900 dark:text-white">
-          Import Users
+          Thêm người dùng
         </h1>
 
         <div className="mb-8">
           <p className="text-gray-600 dark:text-gray-400 mb-2">
-            Upload an Excel file (.xlsx, .xls) containing student information to
-            import into the system.
+            Tải lên tệp Excel (.xlsx, .xls) chứa thông tin sinh viên để nhập vào hệ thống.
           </p>
           <p className="text-gray-600 dark:text-gray-400">
-            The file should contain the following columns: StudentCode,
-            FullName, Class, DateOfBirth.
+            Tệp phải chứa các cột sau: StudentCode,
+              FullName, Class, DateOfBirth.
           </p>
         </div>
 

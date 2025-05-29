@@ -16,6 +16,8 @@ import {
   User,
   Check,
   Info,
+  Settings,
+  ArrowLeft,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -186,7 +188,7 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
 
       if (mode === "create") {
         response = await adminService.createActivity(formattedActivity);
-        setSuccess("Activity created successfully!");
+        setSuccess("Hoạt động đã được tạo thành công!");
 
         // Reset form after creation
         setActivity({
@@ -204,13 +206,13 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
         });
       } else {
         if (!activityId) {
-          throw new Error("Activity ID is required for updating");
+          throw new Error("ID hoạt động là bắt buộc để cập nhật");
         }
         response = await adminService.updateActivity(
           activityId,
           formattedActivity
         );
-        setSuccess("Activity updated successfully!");
+        setSuccess("Hoạt động đã được cập nhật thành công!");
 
         // Navigate back to activities list after a short delay
         setTimeout(() => {
@@ -221,7 +223,7 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
       setError(
         err instanceof Error
           ? err.message
-          : `An error occurred while ${mode === "create" ? "creating" : "updating"} the activity`
+          : `Đã xảy ra lỗi khi ${mode === "create" ? "tạo" : "cập nhật"} hoạt động`
       );
     } finally {
       setIsLoading(false);
@@ -253,7 +255,7 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
             ></path>
           </svg>
           <span className="text-lg font-medium text-gray-700 dark:text-gray-300">
-            Loading activity details...
+            Đang tải chi tiết hoạt động...
           </span>
         </div>
       </div>
@@ -264,7 +266,7 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
     <div className="w-full max-w-4xl mx-auto">
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 border border-gray-200 dark:border-gray-700">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-          {mode === "create" ? "Create New Activity" : "Edit Activity"}
+          {mode === "create" ? "Tạo hoạt động mới" : "Chỉnh sửa hoạt động"}
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -287,7 +289,7 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
               htmlFor="name"
               className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
             >
-              Activity Name
+              Tên hoạt động
             </label>
             <input
               id="name"
@@ -296,7 +298,7 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
               value={activity.name}
               onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder="Enter activity name"
+              placeholder="Nhập tên hoạt động"
               required
             />
           </div>
@@ -306,7 +308,7 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
               htmlFor="description"
               className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
             >
-              Description
+              Mô tả
             </label>
             <textarea
               id="description"
@@ -315,7 +317,7 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
               value={activity.description}
               onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder="Enter activity description"
+              placeholder="Nhập mô tả hoạt động"
               required
             ></textarea>
           </div>
@@ -328,7 +330,7 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
               >
                 <div className="flex items-center">
                   <Calendar className="h-4 w-4 mr-1.5" />
-                  <span>Start Date & Time</span>
+                  <span>Ngày & Giờ bắt đầu</span>
                 </div>
               </label>
               <input
@@ -349,7 +351,7 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
               >
                 <div className="flex items-center">
                   <Clock className="h-4 w-4 mr-1.5" />
-                  <span>End Date & Time</span>
+                  <span>Ngày & Giờ kết thúc</span>
                 </div>
               </label>
               <input
@@ -372,7 +374,7 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
               >
                 <div className="flex items-center">
                   <Coins className="h-4 w-4 mr-1.5" />
-                  <span>Reward Coins</span>
+                  <span>Xu thưởng</span>
                 </div>
               </label>
               <input
@@ -394,7 +396,7 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
               >
                 <div className="flex items-center">
                   <Users className="h-4 w-4 mr-1.5" />
-                  <span>Max Participants</span>
+                  <span>Số người tham gia tối đa</span>
                 </div>
               </label>
               <input
@@ -417,7 +419,7 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
             >
               <div className="flex items-center">
                 <Image className="h-4 w-4 mr-1.5" />
-                <span>Image URL</span>
+                <span>Link hình ảnh</span>
               </div>
             </label>
             <input
@@ -427,7 +429,7 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
               value={activity.imageUrl || ""}
               onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder="Enter image URL (optional)"
+              placeholder="Nhập Link hình ảnh (tùy chọn)"
             />
           </div>
 
@@ -438,7 +440,7 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
             >
               <div className="flex items-center">
                 <MapPin className="h-4 w-4 mr-1.5" />
-                <span>Location</span>
+                <span>Địa điểm</span>
               </div>
             </label>
             <input
@@ -448,7 +450,7 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
               value={activity.location || ""}
               onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder="Enter activity location"
+              placeholder="Nhập địa điểm hoạt động"
               required
             />
           </div>
@@ -460,7 +462,7 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
             >
               <div className="flex items-center">
                 <User className="h-4 w-4 mr-1.5" />
-                <span>Organizer</span>
+                <span>Người tổ chức</span>
               </div>
             </label>
             <input
@@ -470,7 +472,7 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
               value={activity.organizer || ""}
               onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder="Enter organizer name"
+              placeholder="Nhập tên người tổ chức"
               required
             />
           </div>
@@ -481,8 +483,8 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
               className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
             >
               <div className="flex items-center">
-                <Info className="h-4 w-4 mr-1.5" />
-                <span>Status</span>
+                <Settings className="h-4 w-4 mr-1.5" />
+                <span>Trạng thái</span>
               </div>
             </label>
             <select
@@ -493,14 +495,11 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
               required
             >
-              <option value="" disabled>
-                Select a status
-              </option>
-              {STATUS_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
+              <option value="">Chọn trạng thái</option>
+              <option value="Active">Hoạt động</option>
+              <option value="Draft">Bản nháp</option>
+              <option value="Cancelled">Đã hủy</option>
+              <option value="Completed">Hoàn thành</option>
             </select>
           </div>
 
@@ -517,21 +516,20 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
               htmlFor="autoApprove"
               className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
             >
-              <div className="flex items-center">
-                <Check className="h-4 w-4 mr-1.5" />
-                <span>Auto-approve registrations</span>
-              </div>
+              Tự động phê duyệt đăng ký
             </label>
           </div>
 
-          <div className="pt-4 flex space-x-4">
+          <div className="flex gap-4 pt-4">
             <button
               type="button"
-              onClick={() => router.push("/dashboard/admin/activities")}
-              className="px-4 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg flex-1"
+              onClick={() => router.back()}
+              className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2.5 px-4 rounded-lg flex items-center justify-center"
             >
-              Cancel
+              <ArrowLeft className="h-5 w-5 mr-1.5" />
+              Hủy
             </button>
+
             <button
               type="submit"
               disabled={isLoading}
@@ -561,12 +559,12 @@ export const ActivityForm = ({ activityId, mode }: ActivityFormProps) => {
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     ></path>
                   </svg>
-                  Saving...
+                  Đang lưu...
                 </>
               ) : (
                 <>
                   <Save className="h-5 w-5 mr-1.5" />
-                  {mode === "create" ? "Create Activity" : "Save Changes"}
+                  {mode === "create" ? "Tạo hoạt động" : "Lưu thay đổi"}
                 </>
               )}
             </button>

@@ -47,7 +47,7 @@ const Modal = ({
             onClick={onClose}
             className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300"
           >
-            Close
+            Đóng
           </button>
         </div>
       </div>
@@ -107,7 +107,7 @@ export const StudentActivities = () => {
   if (isError) {
     return (
       <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded relative mb-4">
-        <strong className="font-bold">Error: </strong>
+        <strong className="font-bold">Lỗi: </strong>
         <span className="block sm:inline">
           {error instanceof Error ? error.message : "Failed to load activities"}
         </span>
@@ -115,7 +115,7 @@ export const StudentActivities = () => {
           onClick={() => refetch()}
           className="mt-2 px-3 py-1 bg-red-100 text-red-800 rounded hover:bg-red-200"
         >
-          Try Again
+          Thử lại
         </button>
       </div>
     );
@@ -124,15 +124,13 @@ export const StudentActivities = () => {
   if (!activities || activities.length === 0) {
     return (
       <div className="text-center py-8 bg-gray-50 rounded-lg">
-        <p className="text-gray-500">No activities found</p>
+        <p className="text-gray-500">Không tìm thấy hoạt động</p>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Your Activities</h2>
-
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {activities.map((activity) => (
           <ActivityCard
@@ -217,13 +215,13 @@ const ActivityCard = ({
       studentService.registerForActivity(activityId),
     onSuccess: (data) => {
       setRegistrationStatus({
-        message: data.message || "Registration successful!",
+        message: data.message || "Đăng ký thành công!",
         type: "success",
       });
       onRegistrationSuccess();
     },
     onError: (error: any) => {
-      let errorMessage = "Failed to register for activity";
+      let errorMessage = "Không thể đăng ký hoạt động";
       let isAlreadyRegistered = false;
 
       // Try to extract the specific error message from the API response
@@ -235,7 +233,7 @@ const ActivityCard = ({
           // Mark the activity as registered when we get this error
           activity.isRegistered = true;
           // Provide English translation
-          errorMessage = "You have already registered for this activity";
+          errorMessage = "Bạn đã đăng ký hoạt động này rồi";
         }
       } else if (error.message) {
         errorMessage = error.message;
@@ -243,7 +241,7 @@ const ActivityCard = ({
           isAlreadyRegistered = true;
           activity.isRegistered = true;
           // Provide English translation
-          errorMessage = "You have already registered for this activity";
+          errorMessage = "Bạn đã đăng ký hoạt động này rồi";
         }
       }
 
@@ -370,7 +368,7 @@ const ActivityCard = ({
                   d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                 />
               </svg>
-              <span className="font-medium">{activity.rewardCoin} coins</span>
+              <span className="font-medium">{activity.rewardCoin} VKU</span>
             </div>
 
             {/* Registration status indicator */}
@@ -391,7 +389,7 @@ const ActivityCard = ({
                       d="M5 13l4 4L19 7"
                     />
                   </svg>
-                  Registered
+                  Đã đăng ký
                 </div>
               </div>
             )}
@@ -416,41 +414,41 @@ const ActivityCard = ({
           )}
 
           <div>
-            <h3 className="font-medium text-gray-700">Description</h3>
+            <h3 className="font-medium text-gray-700">Mô tả</h3>
             <p className="text-gray-600 mt-1">{activity.description}</p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <h3 className="font-medium text-gray-700">Date & Time</h3>
+              <h3 className="font-medium text-gray-700">Ngày & Giờ</h3>
               <p className="text-gray-600 mt-1">
                 {formatDateTimeRange(activity.startDate, activity.endDate)}
               </p>
             </div>
 
             <div>
-              <h3 className="font-medium text-gray-700">Location</h3>
+              <h3 className="font-medium text-gray-700">Địa điểm</h3>
               <p className="text-gray-600 mt-1">
-                {activity.location || "Not specified"}
+                {activity.location || "Không xác định"}
               </p>
             </div>
 
             <div>
-              <h3 className="font-medium text-gray-700">Reward</h3>
-              <p className="text-gray-600 mt-1">{activity.rewardCoin} coins</p>
+              <h3 className="font-medium text-gray-700">Phần thưởng</h3>
+              <p className="text-gray-600 mt-1">{activity.rewardCoin} VKU</p>
             </div>
 
             <div>
-              <h3 className="font-medium text-gray-700">Organizer</h3>
+              <h3 className="font-medium text-gray-700">Người tổ chức</h3>
               <p className="text-gray-600 mt-1">
-                {activity.organizer || "Not specified"}
+                {activity.organizer || "Không xác định"}
               </p>
             </div>
 
             <div>
-              <h3 className="font-medium text-gray-700">Remaining Slots</h3>
+              <h3 className="font-medium text-gray-700">Số lượng còn lại</h3>
               <p className="text-gray-600 mt-1">
-                {loading ? "Loading..." : `${remainingSlots} / ${activity.maxParticipants}`}
+                {loading ? "Đang tải..." : `${remainingSlots} / ${activity.maxParticipants}`}
               </p>
             </div>
           </div>
@@ -485,7 +483,7 @@ const ActivityCard = ({
                   d="M5 13l4 4L19 7"
                 />
               </svg>
-              You are registered for this activity
+              Bạn đã đăng ký hoạt động này
             </div>
           ) : (
             <button
@@ -503,10 +501,10 @@ const ActivityCard = ({
               {registerMutation.isPending ? (
                 <div className="flex items-center justify-center">
                   <div className="animate-spin h-4 w-4 mr-2 border-2 border-white border-t-transparent rounded-full"></div>
-                  Registering...
+                  Đang đăng ký...
                 </div>
               ) : (
-                "Register for Activity"
+                "Đăng ký hoạt động"
               )}
             </button>
           )}
@@ -514,10 +512,10 @@ const ActivityCard = ({
           {!canRegister && !activity.isRegistered && (
             <p className="text-sm text-gray-500 text-center mt-2">
               {activity.status.toLowerCase() === "đã kết thúc"
-                ? "This activity has already ended"
+                ? "Hoạt động này đã kết thúc"
                 : activity.status.toLowerCase() === "đã hủy"
-                  ? "This activity has been canceled"
-                  : "Registration is not available"}
+                  ? "Hoạt động này đã bị hủy"
+                  : "Đăng ký không khả dụng"}
             </p>
           )}
         </div>

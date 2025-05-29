@@ -29,34 +29,24 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
   const navItems = [
     {
       href: "/dashboard",
-      label: "Dashboard",
+      label: "Trang chủ",
       icon: <Home className="w-5 h-5 mr-2" />,
     },
     {
       href: "/dashboard/admin/import-users",
-      label: "Import Users",
+      label: "Thêm người dùng",
       icon: <FileSpreadsheet className="w-5 h-5 mr-2" />,
     },
     {
       href: "/dashboard/admin/students",
-      label: "All Students",
+      label: "Danh sách sinh viên",
       icon: <Users className="w-5 h-5 mr-2" />,
     },
     {
       href: "/dashboard/admin/activities",
-      label: "Manage Activities",
+      label: "Quản lý hoạt động",
       icon: <ListTodo className="w-5 h-5 mr-2" />,
     },
-    {
-      href: "/dashboard/admin/activities/add",
-      label: "Add Activity",
-      icon: <Calendar className="w-5 h-5 mr-2" />,
-    },
-    // {
-    //   href: "/dashboard/admin/transactions",
-    //   label: "Transactions",
-    //   icon: <CreditCard className="w-5 h-5 mr-2" />,
-    // },
   ];
 
   return (
@@ -65,7 +55,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
       <div className="w-64 bg-white dark:bg-gray-800 shadow-md">
         <div className="p-4 border-b border-gray-200 dark:border-gray-700">
           <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-            VKU Coin Admin
+            VKU Coin
           </h1>
         </div>
         <nav className="p-4">
@@ -87,7 +77,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
                 className="flex w-full items-center p-2 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
               >
                 <LogOut className="w-5 h-5 mr-2" />
-                Logout
+                Đăng xuất
               </button>
             </li>
           </ul>

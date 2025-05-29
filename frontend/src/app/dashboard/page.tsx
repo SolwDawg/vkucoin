@@ -14,22 +14,22 @@ export default function DashboardPage() {
 
   const adminCards = [
     {
-      title: "Import Users",
-      description: "Upload Excel files to import student accounts",
+      title: "Thêm người dùng",
+      description: "Tải lên tệp Excel để nhập tài khoản sinh viên",
       icon: <FileSpreadsheet className="h-8 w-8 text-blue-500" />,
       href: "/dashboard/admin/import-users",
       color: "bg-blue-50 dark:bg-blue-900/20",
     },
     {
-      title: "Manage Activities",
-      description: "View and manage all student activities",
+      title: "Quản lý hoạt động",
+      description: "Xem và quản lý tất cả hoạt động của sinh viên",
       icon: <ListTodo className="h-8 w-8 text-indigo-500" />,
       href: "/dashboard/admin/activities",
       color: "bg-indigo-50 dark:bg-indigo-900/20",
     },
     {
-      title: "Add Activity",
-      description: "Create new activities for students to participate in",
+      title: "Thêm hoạt động",
+      description: "Tạo hoạt động mới cho sinh viên tham gia",
       icon: <Calendar className="h-8 w-8 text-green-500" />,
       href: "/dashboard/admin/activities/add",
       color: "bg-green-50 dark:bg-green-900/20",
@@ -45,9 +45,6 @@ export default function DashboardPage() {
 
         {isAdmin && (
           <>
-            <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">
-              Admin Actions
-            </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
               {adminCards.map((card) => (
                 <Link key={card.title} href={card.href}>
@@ -71,12 +68,11 @@ export default function DashboardPage() {
         )}
 
         <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">
-          Overview
+          Tổng quan
         </h2>
         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
           <p className="text-gray-600 dark:text-gray-400">
-            Welcome to the VKU Coin dashboard. This is where you can manage your
-            account and activities.
+            Chào mừng đến với bảng điều khiển VKU Coin. Đây là nơi bạn có thể quản lý tài khoản và hoạt động của mình.
           </p>
         </div>
       </div>

@@ -25,7 +25,7 @@ export const DeleteActivityDialog = ({
 
   const handleDelete = async () => {
     if (!activity.id) {
-      setError("Activity ID is missing");
+      setError("Thiếu ID hoạt động");
       return;
     }
 
@@ -39,7 +39,7 @@ export const DeleteActivityDialog = ({
       setError(
         err instanceof Error
           ? err.message
-          : "An error occurred while deleting the activity"
+          : "Đã xảy ra lỗi khi xóa hoạt động"
       );
       setIsDeleting(false);
     }
@@ -51,7 +51,7 @@ export const DeleteActivityDialog = ({
         <div className="p-5 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
           <div className="flex items-center text-red-600 dark:text-red-400">
             <Trash className="h-5 w-5 mr-2" />
-            <h3 className="text-lg font-medium">Delete Activity</h3>
+            <h3 className="text-lg font-medium">Xóa hoạt động</h3>
           </div>
           <button
             onClick={onClose}
@@ -72,7 +72,7 @@ export const DeleteActivityDialog = ({
 
           <div className="mb-5">
             <p className="text-gray-700 dark:text-gray-300 mb-3">
-              Are you sure you want to delete this activity?
+              Bạn có chắc chắn muốn xóa hoạt động này?
             </p>
             <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
               <p className="font-medium text-gray-800 dark:text-white">
@@ -90,7 +90,7 @@ export const DeleteActivityDialog = ({
               disabled={isDeleting}
               className="flex-1 py-2 px-4 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
-              Cancel
+              Hủy
             </button>
             <button
               onClick={handleDelete}
@@ -119,10 +119,10 @@ export const DeleteActivityDialog = ({
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     ></path>
                   </svg>
-                  Deleting...
+                  Đang xóa...
                 </>
               ) : (
-                "Delete Activity"
+                "Xóa hoạt động"
               )}
             </button>
           </div>

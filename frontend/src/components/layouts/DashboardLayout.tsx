@@ -21,22 +21,22 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const navItems = [
     {
       href: "/student",
-      label: "Dashboard",
+      label: "Trang chủ",
       icon: <Home className="w-5 h-5 mr-2" />,
     },
     {
       href: "/student/profile",
-      label: "Profile",
+      label: "Hồ sơ",
       icon: <User className="w-5 h-5 mr-2" />,
     },
     {
       href: "/student/activities",
-      label: "Activities",
+      label: "Hoạt động",
       icon: <Calendar className="w-5 h-5 mr-2" />,
     },
     {
       href: "/student/scan",
-      label: "Scans",
+      label: "Quét mã",
       icon: <QrCode className="w-5 h-5 mr-2" />,
     },
   ];
@@ -47,7 +47,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       <div className="w-64 bg-white dark:bg-gray-800 shadow-md">
         <div className="p-4 border-b border-gray-200 dark:border-gray-700">
           <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-            VKU Coin Student
+            VKU Coin
           </h1>
         </div>
         <nav className="p-4">
@@ -69,7 +69,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 className="flex w-full items-center p-2 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
               >
                 <LogOut className="w-5 h-5 mr-2" />
-                Logout
+                Đăng xuất
               </button>
             </li>
           </ul>

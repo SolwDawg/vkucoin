@@ -39,10 +39,10 @@ export default function WalletPage() {
     setIsRefreshing(true);
     try {
       await refreshWalletBalance();
-      toast.success("Wallet balance updated successfully");
+      toast.success("Số dư ví đã được cập nhật thành công");
     } catch (error) {
       console.error("Failed to refresh balance:", error);
-      toast.error("Failed to update wallet balance");
+      toast.error("Không thể cập nhật số dư ví");
     } finally {
       setIsRefreshing(false);
     }
@@ -99,12 +99,12 @@ export default function WalletPage() {
   return (
     <DashboardLayout>
       <div className="flex flex-col gap-4">
-        <h1 className="text-2xl font-bold">My Wallet</h1>
+        <h1 className="text-2xl font-bold">Ví của tôi</h1>
 
         <Card className="mt-4">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-xl font-medium">
-              Wallet Balance
+              Số dư ví
             </CardTitle>
             <div className="flex items-center gap-2">
               <Button
@@ -117,7 +117,7 @@ export default function WalletPage() {
                 <RefreshCw
                   className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
                 />
-                {isRefreshing ? "Refreshing..." : "Refresh"}
+                {isRefreshing ? "Đang làm mới..." : "Làm mới"}
               </Button>
               <WalletIcon className="h-5 w-5 text-primary" />
             </div>
@@ -130,15 +130,15 @@ export default function WalletPage() {
             {walletInfo && (
               <div className="text-sm text-muted-foreground mt-4">
                 <p className="mb-1">
-                  <span className="font-medium">Wallet Address:</span>{" "}
+                  <span className="font-medium">Địa chỉ ví:</span>{" "}
                   {walletInfo.address}
                 </p>
                 <p className="mb-1">
-                  <span className="font-medium">Token Symbol:</span>{" "}
+                  <span className="font-medium">Ký hiệu token:</span>{" "}
                   {walletInfo.tokenSymbol}
                 </p>
                 <p>
-                  <span className="font-medium">Contract Address:</span>{" "}
+                  <span className="font-medium">Địa chỉ hợp đồng:</span>{" "}
                   {walletInfo.contractAddress}
                 </p>
               </div>
@@ -147,11 +147,11 @@ export default function WalletPage() {
             <div className="flex gap-4 mt-6">
               <Button variant="outline" className="flex items-center gap-2">
                 <History className="h-4 w-4" />
-                Transaction History
+                Lịch sử giao dịch
               </Button>
               <Button variant="outline" className="flex items-center gap-2">
                 <ArrowRightLeft className="h-4 w-4" />
-                Transfer Tokens
+                Chuyển token
               </Button>
             </div>
           </CardContent>

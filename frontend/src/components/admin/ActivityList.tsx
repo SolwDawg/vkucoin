@@ -3,20 +3,10 @@
 import { useState, useEffect } from "react";
 import { adminService } from "@/services/admin.service";
 import { Activity } from "@/types/admin";
-import {
-  Calendar,
-  Clock,
-  Users,
-  Coins,
-  AlertCircle,
-  Edit,
-  Eye,
-  Trash,
-  X,
-  ClipboardList,
-} from "lucide-react";
+import { Calendar, AlertCircle, X } from "lucide-react";
 import Link from "next/link";
 import { DeleteActivityDialog } from "./DeleteActivityDialog";
+import { ActivityTable } from "./ActivityTable";
 
 export const ActivityList = () => {
   const [activities, setActivities] = useState<Activity[]>([]);
@@ -38,7 +28,7 @@ export const ActivityList = () => {
       setError(
         err instanceof Error
           ? err.message
-          : "An error occurred while fetching activities"
+          : "Đã xảy ra lỗi khi tải danh sách hoạt động"
       );
     } finally {
       setIsLoading(false);
@@ -49,12 +39,6 @@ export const ActivityList = () => {
     fetchActivities();
   }, []);
 
-  // Format date to readable format
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleString();
-  };
-
   const handleDeleteClick = (activity: Activity) => {
     setSelectedActivity(activity);
     setDeleteDialogOpen(true);
@@ -63,7 +47,7 @@ export const ActivityList = () => {
   const handleDeleteSuccess = () => {
     setDeleteDialogOpen(false);
     setSuccessMessage(
-      `Activity "${selectedActivity?.name}" was deleted successfully`
+      `Hoạt động "${selectedActivity?.name}" đã được xóa thành công`
     );
     fetchActivities(); // Refresh the list after deletion
 
@@ -98,7 +82,7 @@ export const ActivityList = () => {
             ></path>
           </svg>
           <span className="text-lg font-medium text-gray-700 dark:text-gray-300">
-            Loading activities...
+            Đang tải hoạt động...
           </span>
         </div>
       </div>
@@ -110,13 +94,13 @@ export const ActivityList = () => {
       <div className="bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-200 p-6 rounded-lg flex items-start">
         <AlertCircle className="h-6 w-6 mr-3 mt-0.5 flex-shrink-0" />
         <div>
-          <h3 className="font-medium text-lg mb-1">Error Loading Activities</h3>
+          <h3 className="font-medium text-lg mb-1">Lỗi khi tải hoạt động</h3>
           <p>{error}</p>
           <button
             onClick={() => fetchActivities()}
             className="mt-3 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
           >
-            Try Again
+            Thử lại
           </button>
         </div>
       </div>
@@ -128,16 +112,16 @@ export const ActivityList = () => {
       <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 border border-gray-200 dark:border-gray-700">
         <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
         <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-          No Activities Found
+          Không tìm thấy hoạt động
         </h3>
         <p className="text-gray-500 dark:text-gray-400 mb-6">
-          There are no activities available at the moment.
+          Hiện tại chưa có hoạt động nào.
         </p>
         <Link
           href="/dashboard/admin/activities/add"
           className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
         >
-          Create Activity
+          Tạo hoạt động
         </Link>
       </div>
     );
@@ -157,130 +141,11 @@ export const ActivityList = () => {
         </div>
       )}
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead className="bg-gray-50 dark:bg-gray-700">
-              <tr>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
-                >
-                  Name
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
-                >
-                  Description
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
-                >
-                  Start Date
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
-                >
-                  End Date
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
-                >
-                  Rewards
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
-                >
-                  Max Participants
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
-                >
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-              {activities.map((activity) => (
-                <tr
-                  key={activity.id}
-                  className="hover:bg-gray-50 dark:hover:bg-gray-700"
-                >
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="font-medium text-gray-900 dark:text-white">
-                      {activity.name}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="text-gray-500 dark:text-gray-400 truncate max-w-xs">
-                      {activity.description}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-gray-500 dark:text-gray-400">
-                      {formatDate(activity.startDate)}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-gray-500 dark:text-gray-400">
-                      {formatDate(activity.endDate)}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center text-gray-500 dark:text-gray-400">
-                      <Coins className="h-4 w-4 mr-1 text-yellow-500" />
-                      {activity.rewardCoin}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center text-gray-500 dark:text-gray-400">
-                      <Users className="h-4 w-4 mr-1 text-blue-500" />
-                      {activity.maxParticipants}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    <div className="flex space-x-3">
-                      <Link
-                        href={`/dashboard/admin/activities/${activity.id}/registrations`}
-                        className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 flex items-center"
-                      >
-                        <ClipboardList className="h-4 w-4 mr-1" />
-                        Registrations
-                      </Link>
-                      <Link
-                        href={`/dashboard/admin/activities/${activity.id}`}
-                        className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 flex items-center"
-                      >
-                        <Eye className="h-4 w-4 mr-1" />
-                        View
-                      </Link>
-                      <Link
-                        href={`/dashboard/admin/activities/edit/${activity.id}`}
-                        className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 flex items-center"
-                      >
-                        <Edit className="h-4 w-4 mr-1" />
-                        Edit
-                      </Link>
-                      <button
-                        onClick={() => handleDeleteClick(activity)}
-                        className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 flex items-center"
-                      >
-                        <Trash className="h-4 w-4 mr-1" />
-                        Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+        <ActivityTable 
+          activities={activities} 
+          onDeleteClick={handleDeleteClick} 
+        />
       </div>
 
       {selectedActivity && (

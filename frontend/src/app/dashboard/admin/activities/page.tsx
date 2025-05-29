@@ -18,7 +18,7 @@ export default function ActivitiesPage() {
       <div className="container mx-auto py-4">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Manage Activities
+            Quản lý hoạt động
           </h1>
 
           <Link
@@ -26,13 +26,13 @@ export default function ActivitiesPage() {
             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
             <Plus className="h-5 w-5 mr-1" />
-            Add Activity
+            Thêm hoạt động
           </Link>
         </div>
 
         <div className="mb-8">
           <p className="text-gray-600 dark:text-gray-400">
-            View and manage all activities available for students.
+            Xem và quản lý tất cả các hoạt động có sẵn cho sinh viên.
           </p>
         </div>
 

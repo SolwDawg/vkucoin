@@ -59,14 +59,14 @@ export default function StudentDashboard() {
   return (
     <DashboardLayout>
       <div className="flex flex-col gap-4">
-        <h1 className="text-2xl font-bold">Student Dashboard</h1>
-        <h2 className="text-xl">Welcome, {user.fullName}</h2>
+        <h1 className="text-2xl font-bold">Trang chủ sinh viên</h1>
+        <h2 className="text-xl">Chào mừng, {user.fullName}</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Wallet Balance
+                Ví của tôi
               </CardTitle>
               <div className="flex items-center gap-2">
                 <Button
@@ -87,35 +87,63 @@ export default function StudentDashboard() {
                 {wallet?.balance || 0} VKU
               </div>
               <p className="text-xs text-muted-foreground">
-                Your current token balance
+                Số dư hiện tại của bạn
               </p>
               <Link
                 href="/wallet"
                 className="text-sm text-blue-500 hover:underline mt-2 inline-block"
               >
-                Manage wallet
+                Quản lý ví
               </Link>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">My Profile</CardTitle>
+              <CardTitle className="text-sm font-medium">Hồ sơ của tôi</CardTitle>
               <GraduationCap className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-md font-medium">
-                {user.studentCode || "No Student Code"}
+                {user.fullName || "Không có tên"}
+              </div>
+              <div className="text-md font-medium">
+                {user.studentCode || "Không có mã sinh viên"}
               </div>
               <p className="text-xs text-muted-foreground">
-                Update your academic information
+                Cập nhật thông tin học tập
               </p>
               <Link
                 href="/student/profile"
                 className="text-sm text-blue-500 hover:underline mt-2 inline-block"
               >
-                View profile
+                Xem hồ sơ
               </Link>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Điểm rèn luyện của tôi
+              </CardTitle>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleRefreshBalance}
+                  disabled={isRefreshing}
+                >
+                  <RefreshCw
+                    className={`h-4 w-4 text-muted-foreground ${isRefreshing ? "animate-spin" : ""}`}
+                  />
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {(wallet?.balance || 0) / 10} Điểm
+              </div>
             </CardContent>
           </Card>
         </div>

@@ -9,7 +9,7 @@ export default function LoginPage() {
             VKU Coin
           </h1>
           <p className="mt-2 text-gray-600 dark:text-gray-400">
-            Sign in to your account
+            Đăng nhập vào tài khoản của bạn
           </p>
         </div>
         <LoginForm />
