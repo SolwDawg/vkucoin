@@ -51,3 +51,30 @@ export interface ConvertCoinResponse {
   newPoints: number;
   transactionHash: string;
 }
+
+export interface StudentParticipationHistory {
+  activityId: number;
+  activityName: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  location: string;
+  organizer: string;
+  rewardCoin: number;
+  imageUrl: string;
+  registeredAt: string;
+  isApproved: boolean;
+  approvedAt?: string;
+  isParticipationConfirmed: boolean;
+  participationConfirmedAt?: string;
+  evidenceImageUrl?: string;
+  status: string;
+  rewardReceived: boolean;
+}
+
+export interface StudentParticipationHistoryResponse {
+  participations: StudentParticipationHistory[];
+  totalActivities: number;
+  completedActivities: number;
+  totalCoinsEarned: number;
+}

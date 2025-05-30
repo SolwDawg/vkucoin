@@ -5,6 +5,7 @@ import {
   StudentActivitiesResponse,
   RegistrationResponse,
   ConvertCoinResponse,
+  StudentParticipationHistoryResponse,
 } from "@/types/student";
 import { http } from "@/lib/http-client";
 import { useAuthStore } from "@/store/auth.store";
@@ -100,6 +101,20 @@ export const studentService = {
       return response;
     } catch (error) {
       console.error("Error converting coins to points:", error);
+      throw error;
+    }
+  },
+
+  async getParticipationHistory(): Promise<StudentParticipationHistoryResponse> {
+    try {
+      console.log("Fetching participation history");
+      
+      const response = await http.get<StudentParticipationHistoryResponse>('/student/Student/participation-history');
+      
+      console.log("Participation history response:", response);
+      return response;
+    } catch (error) {
+      console.error("Error fetching participation history:", error);
       throw error;
     }
   },

@@ -470,6 +470,95 @@ namespace backend.Controllers
             }
         }
 
+        // GET: api/student/Student/participation-history
+        [HttpGet("participation-history")]
+        [Authorize(Roles = "Student")]
+        public async Task<IActionResult> GetParticipationHistory()
+        {
+            try
+            {
+                var userId = User.FindFirst("UserId")?.Value;
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized(new { Message = "User not authenticated" });
+                }
+
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user == null)
+                {
+                    return NotFound(new { Message = "User not found" });
+                }
+
+                // Get all registrations for this student with activity details
+                var registrations = await _context.ActivityRegistrations
+                    .Include(r => r.Activity)
+                    .Where(r => r.StudentId == userId)
+                    .OrderByDescending(r => r.RegisteredAt)
+                    .ToListAsync();
+
+                var participationHistory = registrations.Select(r => new StudentParticipationHistoryDto
+                {
+                    ActivityId = r.ActivityId,
+                    ActivityName = r.Activity.Name,
+                    Description = r.Activity.Description,
+                    StartDate = r.Activity.StartDate,
+                    EndDate = r.Activity.EndDate,
+                    Location = r.Activity.Location,
+                    Organizer = r.Activity.Organizer,
+                    RewardCoin = r.Activity.RewardCoin,
+                    ImageUrl = r.Activity.ImageUrl,
+                    RegisteredAt = r.RegisteredAt,
+                    IsApproved = r.IsApproved,
+                    ApprovedAt = r.ApprovedAt,
+                    IsParticipationConfirmed = r.IsParticipationConfirmed,
+                    ParticipationConfirmedAt = r.ParticipationConfirmedAt,
+                    EvidenceImageUrl = r.EvidenceImageUrl,
+                    Status = GetParticipationStatus(r),
+                    RewardReceived = r.IsParticipationConfirmed
+                }).ToList();
+
+                var summary = new StudentParticipationHistoryListDto
+                {
+                    Participations = participationHistory,
+                    TotalActivities = registrations.Count,
+                    CompletedActivities = registrations.Count(r => r.IsParticipationConfirmed),
+                    TotalCoinsEarned = registrations.Where(r => r.IsParticipationConfirmed).Sum(r => r.Activity.RewardCoin)
+                };
+
+                return Ok(summary);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting participation history");
+                return StatusCode(500, new { Message = "An error occurred while retrieving participation history" });
+            }
+        }
+
+        private string GetParticipationStatus(ActivityRegistration registration)
+        {
+            if (!registration.IsApproved)
+            {
+                return "Chờ phê duyệt";
+            }
+            
+            if (registration.IsParticipationConfirmed)
+            {
+                return "Đã hoàn thành";
+            }
+            
+            if (DateTime.UtcNow > registration.Activity.EndDate)
+            {
+                return "Đã kết thúc - Chưa xác nhận";
+            }
+            
+            if (DateTime.UtcNow >= registration.Activity.StartDate && DateTime.UtcNow <= registration.Activity.EndDate)
+            {
+                return "Đang diễn ra";
+            }
+            
+            return "Sắp diễn ra";
+        }
+
         // GET: api/student/Student/{activityId}/registrations
         [HttpGet("{activityId}/registrations")]
         public async Task<IActionResult> GetActivityRegistrations(int activityId)
