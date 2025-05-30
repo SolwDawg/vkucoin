@@ -133,27 +133,8 @@ export default function WalletPage() {
                   <span className="font-medium">Địa chỉ ví:</span>{" "}
                   {walletInfo.address}
                 </p>
-                <p className="mb-1">
-                  <span className="font-medium">Ký hiệu token:</span>{" "}
-                  {walletInfo.tokenSymbol}
-                </p>
-                <p>
-                  <span className="font-medium">Địa chỉ hợp đồng:</span>{" "}
-                  {walletInfo.contractAddress}
-                </p>
               </div>
             )}
-
-            <div className="flex gap-4 mt-6">
-              <Button variant="outline" className="flex items-center gap-2">
-                <History className="h-4 w-4" />
-                Lịch sử giao dịch
-              </Button>
-              <Button variant="outline" className="flex items-center gap-2">
-                <ArrowRightLeft className="h-4 w-4" />
-                Chuyển token
-              </Button>
-            </div>
           </CardContent>
         </Card>
       </div>

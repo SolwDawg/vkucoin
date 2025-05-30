@@ -108,6 +108,7 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<WalletService>();
 builder.Services.AddScoped<ExcelService>();
 builder.Services.AddScoped<QRCodeService>();
+builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
 
 // Add health checks
 builder.Services.AddHealthChecks()

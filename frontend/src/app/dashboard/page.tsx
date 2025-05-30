@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useAdminAuth } from "@/lib/admin.utils";
 import { AdminLayout } from "@/components/layouts/AdminLayout";
 import Link from "next/link";
-import { FileSpreadsheet, Users, Calendar, ListTodo } from "lucide-react";
+import { FileSpreadsheet, Users, Calendar, ListTodo, BarChart3 } from "lucide-react";
 
 export default function DashboardPage() {
   // Use auth hook to ensure only authenticated users can access this page
@@ -13,6 +13,13 @@ export default function DashboardPage() {
   const { isAdmin } = useAdminAuth();
 
   const adminCards = [
+    {
+      title: "Thống kê & Phân tích",
+      description: "Xem báo cáo chi tiết về hoạt động và hiệu suất hệ thống",
+      icon: <BarChart3 className="h-8 w-8 text-purple-500" />,
+      href: "/dashboard/admin/analytics",
+      color: "bg-purple-50 dark:bg-purple-900/20",
+    },
     {
       title: "Thêm người dùng",
       description: "Tải lên tệp Excel để nhập tài khoản sinh viên",
@@ -66,15 +73,6 @@ export default function DashboardPage() {
             </div>
           </>
         )}
-
-        <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">
-          Tổng quan
-        </h2>
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
-          <p className="text-gray-600 dark:text-gray-400">
-            Chào mừng đến với bảng điều khiển VKU Coin. Đây là nơi bạn có thể quản lý tài khoản và hoạt động của mình.
-          </p>
-        </div>
       </div>
     </AdminLayout>
   );
